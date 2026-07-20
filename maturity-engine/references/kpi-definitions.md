@@ -1,0 +1,204 @@
+# KPI Definitions
+definition_version: kpi_v2_aligned
+scope: sprint-level analysis
+unit_of_analysis: Team × Sprint
+
+This file is the authoritative source for KPI computation logic.
+The engine SKILL.md contains quick-reference formulas.
+This file contains the full definitions including edge cases,
+null handling, and data quality rules.
+
+---
+
+## General rules — apply to all KPIs
+
+**Null handling**
+- Never store or report "Unknown" as a categorical value
+- Missing data → value = null, value_status = "missing"
+- Report null KPIs explicitly in output with explanation
+
+**Minimum sample size**
+- If task count < 5, compute KPI but add warning: "Low sample size — interpret with caution"
+- If task count = 0, all KPIs = null
+
+**Sprint membership**
+A task belongs to a sprint if it appears in A_Sprints with that Sprint Index Name.
+A task belongs to a team if its Team Name in A_Task matches.
+Filter A_Sprints first, then join to A_Task — not the other way.
+
+**Spillover handling**
+A task may appear in multiple sprints (carried over).
+When analysing sprint S, use only the A_Sprints row where Sprint Index Name = S.
+Do not merge rows across sprints before KPI computation.
+
+---
+
+## KPI 1 — Roadmap Contribution
+
+**Intent**
+Measure what share of sprint capacity is devoted to work directly linked
+to strategic roadmap execution.
+
+**Roadmap depth derivation (per task)**
+This is a categorical variable derived from task → epic → initiative hierarchy.
+
+Derivation logic (in priority order):
+1. Does parent epic have explicit `Roadmap Type` field?
+   - Contains "committed" (case-insensitive) → roadmap_committed
+   - Contains "stretched" (case-insensitive) → roadmap_stretched
+2. Does epic have `Initiative key`?
+   - Initiative exists AND has `Initiative Quarter` → roadmap_committed
+   - Initiative exists AND has NO `Initiative Quarter` → "initiative"
+3. Task has `Parent key` (epic exists) but no initiative → "epic"
+4. Task has no `Parent key` → "solo"
+5. All other cases → null
+
+**Formula**
+Let R = tasks where roadmap_depth ∈ {roadmap_committed, roadmap_stretched}
+Let N = all tasks in sprint for this team
+
+Roadmap_Contribution = |R| / |N|
+
+**Evidence to report**
+- numerator (roadmap task count)
+- denominator (total task count)
+- roadmap_depth_counts (breakdown by category)
+- roadmap_logic_version: "v1.0"
+
+**Data quality warning — always include**
+If value = 0%:
+Add warning: "Roadmap contribution of 0% likely reflects missing
+Initiative/Epic linkage in Jira rather than zero strategic work.
+Verify that epics are linked to initiatives with quarters before
+interpreting this as a strategic alignment failure."
+
+---
+
+## KPI 2 — Sprint Completion
+
+**Intent**
+Measure the team's ability to complete sprint-scoped work within the sprint.
+
+**Source field**
+`Is Completed in Sprint` in A_Sprints
+- "Y" → completed = true
+- "N" or missing → completed = false
+
+**Formula**
+Let C = tasks where Is Completed in Sprint = "Y"
+Let N = all tasks in sprint for this team
+
+Sprint_Completion = |C| / |N|
+
+**Evidence to report**
+- numerator (completed task count)
+- denominator (total task count)
+
+---
+
+## KPI 3 — Cycle Time p50 (Median Development Cycle Time)
+
+**Intent**
+Measure process flow efficiency — how fast tasks move through development.
+
+**Source field**
+`All Development Days Round Up to 50` from A_Task
+This field is pre-capped at 50 days (winsorization).
+The cap is intentional — prevents extreme outliers from distorting sprint comparisons.
+Always document cap in output metadata.
+
+Do NOT use `All Development Days` (uncapped) for this KPI.
+The uncapped field is reserved for Epic Dev Time KPI only.
+
+**Formula**
+Let D = list of non-null `All Development Days Round Up to 50` values
+       for all tasks in the sprint for this team
+
+Cycle_Time_p50 = median(D)
+
+If D is empty → value = null
+
+**Additional percentiles to compute when available**
+p75 = 75th percentile of D
+p90 = 90th percentile of D
+
+**Evidence to report**
+- sample_size (count of tasks with valid cycle time)
+- cycle_time_cap: 50
+- source_field: "All Development Days Round Up to 50"
+- p75, p90 when computable
+
+---
+
+## KPI 4 — Parallel Epics (Epic-level WIP)
+
+**Intent**
+Measure the degree of work parallelisation at epic level within a sprint.
+Higher values indicate higher WIP and more context switching.
+
+**Formula**
+Let E = distinct non-null `Parent key` values across all tasks in the sprint
+
+Parallel_Epics = |E|
+
+This is a count per sprint (not a ratio).
+The thesis formula Distinct(Epics)/Distinct(Sprints) reduces to this
+because Distinct(Sprints) = 1 when analysing one sprint at a time.
+
+**Evidence to report**
+- distinct_epic_count
+- analysis_unit: "sprint"
+
+---
+
+## KPI 5 — Epic Development Time
+
+**Intent**
+Measure the average development duration of epics as a proxy for
+throughput of larger deliveries.
+
+**Implementation mode: proxy_avg_dev_days**
+Conceptual definition requires timestamp history (first InProgress to last Done).
+Current data does not contain reliable stage timestamps at epic level.
+Proxy mode is used instead and MUST be declared in every output.
+
+**Source field**
+`All Development Days` from A_Task — uncapped raw value.
+Do NOT use `All Development Days Round Up to 50` here.
+The cap is not applied because outlier sensitivity is acceptable
+at epic aggregation level.
+
+**Formula**
+For each epic e that has at least one task with non-null All Development Days:
+
+  epic_avg_days(e) = mean(All Development Days of tasks belonging to e)
+  epic_weeks(e) = epic_avg_days(e) / 7
+
+Epic_Dev_Time = mean(epic_weeks(e) across all valid epics)
+
+A valid epic = at least one task with non-null All Development Days.
+
+If no valid epics → value = null
+
+**Evidence to report**
+- epic_count (number of valid epics used)
+- task_count (tasks contributing dev days)
+- mode: "proxy_avg_dev_days"
+- proxy_warning: "Epic dev time is computed as mean of task dev days
+  per epic. This is not equivalent to conceptual first-InProgress
+  to last-Done duration. Interpret with caution."
+
+---
+
+## Output metadata — required for every KPI record
+
+Every KPI result must include:
+- value (numeric or null)
+- display (human-readable string with unit)
+- unit (ratio / days / weeks / count)
+- value_status (ok / missing / insufficient_data)
+- level (0 / 0.5 / 1 based on thresholds, or null if missing)
+- status (RED / YELLOW / GREEN / N/A)
+- definition_version: "kpi_v2_aligned"
+- computed_at (timestamp)
+- notes (list of warnings or observations)
