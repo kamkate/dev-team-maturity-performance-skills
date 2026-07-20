@@ -1,0 +1,10 @@
+{
+  "name": "maturity-onboarding",
+  "description": "Configuration wizard that generates org-config.md and org-kpi-definitions.md for the maturity-engine skill — KPI customization, threshold calibration, and data-quality capture.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Kate Kamenistak"
+  },
+  "license": "MIT",
+  "keywords": ["engineering-metrics", "jira", "agile", "onboarding", "configuration"]
+}

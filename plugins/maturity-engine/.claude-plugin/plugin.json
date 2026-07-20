@@ -1,0 +1,10 @@
+{
+  "name": "maturity-engine",
+  "description": "Governed analytical engine that computes deterministic delivery KPIs from Jira data, detects diagnostic patterns, scores team maturity, and recommends interventions from a fixed catalog.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Kate Kamenistak"
+  },
+  "license": "MIT",
+  "keywords": ["engineering-metrics", "jira", "agile", "delivery-maturity", "kpi"]
+}

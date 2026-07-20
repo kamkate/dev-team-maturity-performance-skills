@@ -1,0 +1,19 @@
+{
+  "name": "dev-team-maturity-performance-skills",
+  "owner": {
+    "name": "Kate Kamenistak"
+  },
+  "description": "Governed Claude Agent Skills for engineering delivery maturity analysis: deterministic KPIs, rule-based pattern detection, and catalog-only intervention recommendations from Jira data.",
+  "plugins": [
+    {
+      "name": "maturity-engine",
+      "source": "./plugins/maturity-engine",
+      "description": "Computes 5 deterministic delivery KPIs, detects diagnostic patterns, scores team maturity (0-100), and recommends interventions from a fixed catalog."
+    },
+    {
+      "name": "maturity-onboarding",
+      "source": "./plugins/maturity-onboarding",
+      "description": "Guides a CTO or consultant through setting up org-specific KPI definitions, thresholds, and data-quality notes for maturity-engine."
+    }
+  ]
+}
