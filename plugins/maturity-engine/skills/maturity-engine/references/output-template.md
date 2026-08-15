@@ -194,25 +194,25 @@ Examples of the question line — always this concrete, never generic:
 
 ### Worked example
 
-*A complete §3 report, real numbers, so the shape above is unambiguous:*
+*A complete §3 report, illustrative numbers, so the shape above is unambiguous:*
 
-> ### 🧭 TEAMPRJ-000005 · Sprint 2025-S26
+> ### 🧭 TEAMPRJ-DEMO01 · Sprint 2099-S01
 >
 > **🎯 Score: `20/100`** — 🔴 Low maturity
 > Delivery is unpredictable and strategically adrift this sprint — four of five KPIs are red, and the two compound patterns below point to the same root cause: too much started, not enough finished.
 >
-> `SPRINT-000074` · Demo Org · 28 tasks analysed
+> `SPRINT-DEMO01` · Demo Org · 31 tasks analysed
 >
 > **📊 KPI Facts**
 > 🔴🔴🔴🔴🟢 *(4 red · 0 yellow · 1 green)*
 >
 > | KPI | Value | Status |
 > |-----|-------|--------|
-> | Roadmap Contribution | `28.6%` | 🔴 RED |
-> | Sprint Completion | `39.3%` | 🔴 RED |
-> | Cycle Time p50 | `17.0 days` | 🔴 RED |
-> | Parallel Epics | `7 epics` | 🔴 RED |
-> | Epic Dev Time | `4.7 weeks` (proxy) | 🟢 GREEN |
+> | Roadmap Contribution | `24.1%` | 🔴 RED |
+> | Sprint Completion | `43.8%` | 🔴 RED |
+> | Cycle Time p50 | `12.5 days` | 🔴 RED |
+> | Parallel Epics | `6 epics` | 🔴 RED |
+> | Epic Dev Time | `4.2 weeks` (proxy) | 🟢 GREEN |
 >
 > **🚦 Signals — Triggered Patterns**
 >
@@ -268,8 +268,8 @@ Examples of the question line — always this concrete, never generic:
 >
 > **📝 Assumptions & Limitations**
 > - Epic Dev Time is computed in `proxy_avg_dev_days` mode — mean task-level development days ÷ 7, per epic. Conceptual (stage-timestamp) mode is not available for this Jira instance.
-> - Roadmap Contribution of 28.6% may partly reflect missing Initiative-key linkage in A_Epic rather than true strategic misalignment.
-> - `SPRINT-000074` is closed for this team — these figures are final for this reporting period.
+> - Roadmap Contribution of 24.1% may partly reflect missing Initiative-key linkage in A_Epic rather than true strategic misalignment.
+> - `SPRINT-DEMO01` is closed for this team — these figures are final for this reporting period.
 >
 > `Versions: engine-defaults-v1 · maturity_v1 · recommendation_catalog_v1 · org-config-v1`
 >
