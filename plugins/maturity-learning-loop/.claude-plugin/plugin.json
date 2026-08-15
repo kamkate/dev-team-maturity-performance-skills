@@ -1,0 +1,10 @@
+{
+  "name": "maturity-learning-loop",
+  "description": "Tracks intervention decisions (accept/defer/skip), auto-evaluates outcomes against KPI deltas after a lookback window, computes ROI in engineer-days and money, and generates quarterly CTO reports.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Kate Kamenistak"
+  },
+  "license": "MIT",
+  "keywords": ["engineering-metrics", "jira", "agile", "roi", "outcome-tracking"]
+}

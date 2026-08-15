@@ -1,0 +1,10 @@
+{
+  "name": "maturity-core",
+  "description": "Shared deterministic runner, engine defaults, and JSON schemas used by maturity-engine and maturity-onboarding. Not a standalone skill — install alongside those plugins.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Kate Kamenistak"
+  },
+  "license": "MIT",
+  "keywords": ["engineering-metrics", "jira", "shared-library", "runner"]
+}

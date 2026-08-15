@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Org Config (parsed)",
+  "description": "Validates the flat dict produced by run_analysis.py::parse_markdown_kv over an org-config.md file, not the raw markdown text itself. Threshold keys follow the `{kpi}_green` / `{kpi}_yellow` convention (with cycle_time_p50 aliased to the `cycle_time_*` prefix — see run_analysis.py::THRESHOLD_PREFIX) and are constrained by patternProperties below. Whether active_patterns/disabled_patterns/team_overrides values are themselves valid pattern IDs or KPI IDs is checked against engine_defaults.json by the referential-integrity test, not by this schema — a JSON Schema file has no way to reference another file's data as an enum without duplicating it, which would itself violate D5's single-source-of-truth rule.",
+  "type": "object",
+  "required": ["org_name", "sprint_length_weeks"],
+  "properties": {
+    "org_name": {"type": "string", "minLength": 1},
+    "sprint_length_weeks": {"type": "number", "exclusiveMinimum": 0},
+    "config_version": {"type": "string"},
+    "active_patterns": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Restricts pattern detection/reporting to this set (run_analysis.py::detect_patterns). Must be a subset of engine_defaults.json's canonical pattern IDs."
+    },
+    "disabled_patterns": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "team_overrides": {
+      "type": "object",
+      "description": "Per-team threshold overrides, keyed by Team, each an object of the same `{kpi}_green`/`{kpi}_yellow` keys as the top level. Anticipated per the build spec (Sec.3.3) for the documented near-term team-level-thresholds requirement; not yet read by run_analysis.py — a forward-declared shape, not a currently-consumed one.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {"type": "number"}
+      }
+    },
+    "leading_indicator_thresholds": {
+      "type": "object",
+      "description": "Per-indicator watch/concern thresholds (Sec.3.5.6) plus per-org applicability, keyed by indicator id in lowercase (e.g. 'missing_sp_ratio'). See maturity-engine/references/leading-indicator-rules.md and leading_indicators.py::evaluate_probabilistic_indicator / filter_applicable_indicators.",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "watch_threshold": {"type": ["number", "null"]},
+          "concern_threshold": {"type": ["number", "null"]},
+          "confidence_basis": {
+            "type": "string",
+            "description": "Evidence strength for this indicator's threshold values, surfaced verbatim as the report's `basis` field when the indicator is evaluated.",
+            "enum": [
+              "market_benchmark_convergent",
+              "market_benchmark_proxy",
+              "market_benchmark_proxy_different_metric",
+              "qualitative_pattern_operationalized",
+              "no_market_benchmark_found"
+            ]
+          },
+          "applicable": {
+            "type": "boolean",
+            "description": "Whether this indicator applies to this org's workflow at all. Defaults to true when omitted."
+          },
+          "applicability_reason": {
+            "type": ["string", "null"],
+            "description": "Required non-empty when applicable is false — see leading_indicators.py::validate_leading_indicator_thresholds, which fails config loading if this is missing."
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "patternProperties": {
+    "^[a-z_]+_(green|yellow)$": {"type": "number"}
+  },
+  "additionalProperties": true
+}

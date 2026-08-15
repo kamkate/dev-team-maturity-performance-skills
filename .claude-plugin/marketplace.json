@@ -6,6 +6,11 @@
   "description": "Governed Claude Agent Skills for engineering delivery maturity analysis: deterministic KPIs, rule-based pattern detection, and catalog-only intervention recommendations from Jira data.",
   "plugins": [
     {
+      "name": "maturity-core",
+      "source": "./plugins/maturity-core",
+      "description": "Shared deterministic runner, engine defaults, and JSON schemas used by maturity-engine and maturity-onboarding. Install alongside those plugins."
+    },
+    {
       "name": "maturity-engine",
       "source": "./plugins/maturity-engine",
       "description": "Computes 5 deterministic delivery KPIs, detects diagnostic patterns, scores team maturity (0-100), and recommends interventions from a fixed catalog."
@@ -14,6 +19,11 @@
       "name": "maturity-onboarding",
       "source": "./plugins/maturity-onboarding",
       "description": "Guides a CTO or consultant through setting up org-specific KPI definitions, thresholds, and data-quality notes for maturity-engine."
+    },
+    {
+      "name": "maturity-learning-loop",
+      "source": "./plugins/maturity-learning-loop",
+      "description": "Tracks intervention decisions, auto-evaluates outcomes against KPI deltas, computes ROI, and generates quarterly CTO reports."
     }
   ]
 }

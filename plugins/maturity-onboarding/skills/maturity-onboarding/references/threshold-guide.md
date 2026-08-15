@@ -153,3 +153,14 @@ If any validation fails:
 > "⚠️ Threshold conflict detected: [describe issue].
 > For [KPI], GREEN should be [direction] than YELLOW.
 > Please correct: what should GREEN be? What should YELLOW be?"
+
+---
+
+## Next: leading indicator applicability
+
+Once the 5 KPI thresholds are settled, continue immediately to
+[leading-indicator-applicability.md](leading-indicator-applicability.md) —
+a related but distinct question (does each of the 9 probabilistic leading
+indicators even apply to this org's workflow, not what its threshold
+value should be) that writes into the same `org-config.md`
+`leading_indicator_thresholds` block.

@@ -1,0 +1,77 @@
+{
+  "definition_version": "engine-defaults-v1",
+  "scoring": {
+    "version": "maturity_v1",
+    "levels": {
+      "green": 1,
+      "yellow": 0.5,
+      "red": 0
+    },
+    "bands": [
+      {"min": 0, "max": 39, "label": "Low maturity"},
+      {"min": 40, "max": 69, "label": "Developing maturity"},
+      {"min": 70, "max": 100, "label": "High maturity"}
+    ]
+  },
+  "kpis": {
+    "roadmap_contribution": {
+      "unit": "ratio",
+      "green": 0.5,
+      "yellow": 0.35,
+      "direction": "higher_is_better"
+    },
+    "sprint_completion": {
+      "unit": "ratio",
+      "green": 0.8,
+      "yellow": 0.5,
+      "direction": "higher_is_better"
+    },
+    "cycle_time_p50": {
+      "unit": "days",
+      "green": 6,
+      "yellow": 9,
+      "direction": "lower_is_better"
+    },
+    "parallel_epics": {
+      "unit": "count",
+      "green": 3,
+      "yellow": 5,
+      "direction": "lower_is_better"
+    },
+    "epic_dev_time": {
+      "unit": "weeks",
+      "green": 5,
+      "yellow": 8,
+      "direction": "lower_is_better"
+    }
+  },
+  "patterns": {
+    "HIGH_EPIC_WIP": {"type": "Flow"},
+    "LOW_SPRINT_COMPLETION": {"type": "Predictability"},
+    "LONG_CYCLE_TIME": {"type": "Flow"},
+    "LONG_EPIC_DEVELOPMENT_TIME": {"type": "Delivery"},
+    "LOW_ROADMAP_CONTRIBUTION": {"type": "Strategic"},
+    "WIP_DEATH_SPIRAL": {"type": "Systemic"},
+    "ROADMAP_DRIFT": {"type": "Strategic/Systemic"}
+  },
+  "pattern_aliases": {
+    "DELIVERY_STALL": "LONG_CYCLE_TIME",
+    "EPIC_ACCUMULATION": "HIGH_EPIC_WIP",
+    "FOCUS_FRAGMENTATION": "HIGH_EPIC_WIP",
+    "PLANNING_OVERCOMMITMENT": "LOW_SPRINT_COMPLETION"
+  },
+  "leading_risk_ids": {
+    "SOLO_TASK_RISK": {"indicator_id": "SOLO_TASK_RATIO", "type": "Structural"},
+    "INITIATIVE_LINK_RISK": {"indicator_id": "INITIATIVE_LINK_RATIO_TASK_WEIGHTED", "type": "Structural"},
+    "PLANNING_READINESS_RISK": {"indicator_id": "MISSING_SP_RATIO", "type": "Planning"},
+    "CARRYOVER_RISK": {"indicator_id": "CARRYOVER_RATE", "type": "Capacity"},
+    "EPIC_SPRAWL_RISK": {"indicator_id": "EPIC_SPRAWL", "type": "Structural"},
+    "MIDSPRINT_SCOPE_PRESSURE": {"indicator_id": "MID_SPRINT_TASK_INJECTION", "type": "Scope"},
+    "BUG_INJECTION_RISK": {"indicator_id": "BUG_INJECTION_RATE", "type": "Quality"},
+    "LONG_BLOCKED_TASKS": {"indicator_id": "LONG_BLOCKED_COUNT", "type": "Flow"},
+    "REOPEN_RISK": {"indicator_id": "REOPEN_PROXY_COUNT", "type": "Quality"},
+    "STALLED_WIP": {"indicator_id": "STALLED_WIP_COUNT", "type": "Flow"},
+    "BUG_FEATURE_RISK": {"indicator_id": "BUG_FEATURE_RATIO", "type": "Quality"},
+    "LATE_COMPLETION_RISK": {"indicator_id": "LATE_COMPLETION_SPIKE", "type": "Predictability"}
+  }
+}

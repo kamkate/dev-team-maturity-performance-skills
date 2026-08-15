@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KPI Pipeline",
+  "description": "Validates one parsed ```pipeline``` block extracted from an org-kpi-definitions.md file (see maturity-core/run_analysis.py::load_kpi_pipelines and evaluate.py). This is the machine-checkable shape of the minimal-first DSL (ZADANI Sec.4 / D2 / D15): scope -> select -> filter -> project -> aggregate -> classify. Validate each block individually, e.g. jsonschema.validate(spec, this_schema) for spec in load_kpi_pipelines(text).values().",
+  "type": "object",
+  "required": ["kpi_id", "scope", "select", "aggregate", "unit", "classify"],
+  "properties": {
+    "kpi_id": {"type": "string", "minLength": 1},
+    "scope": {"type": "string", "enum": ["working_set"]},
+    "select": {
+      "type": "object",
+      "required": ["table"],
+      "properties": {
+        "table": {"type": "string", "enum": ["A_Task", "A_Epic", "A_Initiative", "A_Sprints"]}
+      },
+      "additionalProperties": false
+    },
+    "filter": {"type": "array", "items": {"$ref": "#/$defs/predicate"}},
+    "project": {
+      "type": "object",
+      "required": ["field"],
+      "properties": {"field": {"type": "string"}},
+      "additionalProperties": false
+    },
+    "aggregate": {
+      "type": "string",
+      "enum": ["count", "count_distinct", "median", "mean", "sum", "ratio", "group_mean_of_means"]
+    },
+    "aggregate_params": {"type": "object"},
+    "unit": {"type": "string", "enum": ["ratio", "days", "weeks", "count"]},
+    "classify": {
+      "type": "object",
+      "required": ["direction", "green", "yellow"],
+      "properties": {
+        "direction": {"type": "string", "enum": ["higher_is_better", "lower_is_better"]},
+        "green": {"type": "number"},
+        "yellow": {"type": "number"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"aggregate": {"const": "ratio"}}},
+      "then": {
+        "properties": {
+          "aggregate_params": {
+            "type": "object",
+            "required": ["numerator_filter"],
+            "properties": {
+              "numerator_filter": {"type": "array", "items": {"$ref": "#/$defs/predicate"}}
+            }
+          }
+        },
+        "required": ["aggregate_params"]
+      }
+    },
+    {
+      "if": {"properties": {"aggregate": {"const": "group_mean_of_means"}}},
+      "then": {
+        "properties": {
+          "aggregate_params": {
+            "type": "object",
+            "required": ["group_field", "value_field"],
+            "properties": {
+              "group_field": {"type": "string"},
+              "value_field": {"type": "string"},
+              "scale_divisor": {"type": "number"}
+            }
+          }
+        },
+        "required": ["aggregate_params", "filter"]
+      }
+    },
+    {
+      "if": {"properties": {"aggregate": {"enum": ["median", "mean", "sum", "count_distinct"]}}},
+      "then": {"required": ["project", "filter"]}
+    }
+  ],
+  "$defs": {
+    "predicate": {
+      "type": "object",
+      "required": ["op"],
+      "oneOf": [
+        {
+          "properties": {"op": {"const": "not_null"}, "field": {"type": "string"}},
+          "required": ["field"]
+        },
+        {
+          "properties": {"op": {"const": "is_null"}, "field": {"type": "string"}},
+          "required": ["field"]
+        },
+        {
+          "properties": {"op": {"const": "exists"}, "field": {"type": "string"}},
+          "required": ["field"]
+        },
+        {
+          "properties": {"op": {"const": "eq"}, "field": {"type": "string"}, "value": true},
+          "required": ["field", "value"]
+        },
+        {
+          "properties": {"op": {"const": "neq"}, "field": {"type": "string"}, "value": true},
+          "required": ["field", "value"]
+        },
+        {
+          "properties": {"op": {"const": "in"}, "field": {"type": "string"}, "values": {"type": "array"}},
+          "required": ["field", "values"]
+        },
+        {
+          "properties": {"op": {"const": "not_in"}, "field": {"type": "string"}, "values": {"type": "array"}},
+          "required": ["field", "values"]
+        },
+        {
+          "properties": {
+            "op": {"const": "linked_to"},
+            "field": {"type": "string"},
+            "table": {"type": "string"},
+            "target_field": {"type": "string"},
+            "value": true
+          },
+          "required": ["field", "table", "target_field"]
+        },
+        {
+          "properties": {"op": {"const": "all_of"}, "predicates": {"type": "array", "items": {"$ref": "#/$defs/predicate"}}},
+          "required": ["predicates"]
+        },
+        {
+          "properties": {"op": {"const": "any_of"}, "predicates": {"type": "array", "items": {"$ref": "#/$defs/predicate"}}},
+          "required": ["predicates"]
+        }
+      ]
+    }
+  }
+}

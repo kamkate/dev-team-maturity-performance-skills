@@ -1,7 +1,7 @@
 {
   "name": "maturity-engine",
-  "description": "Governed analytical engine that computes deterministic delivery KPIs from Jira data, detects diagnostic patterns, scores team maturity, and recommends interventions from a fixed catalog.",
-  "version": "1.0.0",
+  "description": "Governed analytical engine that computes deterministic delivery KPIs from Jira data, detects diagnostic patterns, scores team maturity, and recommends interventions from a fixed catalog. Requires the maturity-core plugin.",
+  "version": "2.0.0",
   "author": {
     "name": "Kate Kamenistak"
   },

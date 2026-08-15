@@ -60,6 +60,56 @@ disabled_patterns:
 
 ---
 
+## Leading indicator thresholds
+
+# See references/leading-indicator-applicability.md for the dialogue that
+# produces this block. Start from the market-benchmark defaults below
+# (org-configs/template.md carries the same values) and only add
+# `applicable: false` + `applicability_reason` for indicators the user
+# said don't apply — omit both fields entirely for every indicator that
+# does apply, rather than writing `applicable: true` on all nine.
+
+leading_indicator_thresholds:
+  carryover_rate:
+    watch_threshold: 0.10
+    concern_threshold: 0.20
+    confidence_basis: market_benchmark_convergent
+  reopen_proxy_count:
+    watch_threshold: 0.05
+    concern_threshold: 0.10
+    confidence_basis: market_benchmark_convergent
+  missing_sp_ratio:
+    watch_threshold: 0.20
+    concern_threshold: 0.40
+    confidence_basis: market_benchmark_proxy
+    [+ applicable: false / applicability_reason if the user said no story points]
+  mid_sprint_task_injection:
+    watch_threshold: 0.10
+    concern_threshold: 0.20
+    confidence_basis: market_benchmark_proxy
+  bug_injection_rate:
+    watch_threshold: 0.15
+    concern_threshold: 0.30
+    confidence_basis: market_benchmark_proxy_different_metric
+  bug_feature_ratio:
+    watch_threshold: 0.10
+    concern_threshold: 0.20
+    confidence_basis: market_benchmark_proxy
+  late_completion_spike:
+    watch_threshold: 0.25
+    concern_threshold: 0.40
+    confidence_basis: qualitative_pattern_operationalized
+  long_blocked_count:
+    watch_threshold: null
+    concern_threshold: null
+    confidence_basis: no_market_benchmark_found
+  stalled_wip_count:
+    watch_threshold: null
+    concern_threshold: null
+    confidence_basis: no_market_benchmark_found
+
+---
+
 ## Token efficiency settings
 
 max_teams_per_compare: [value]
@@ -200,6 +250,14 @@ Files produced:
 
 ---
 
+## Leading indicator applicability
+
+[For each of the 9 probabilistic leading indicators excluded during Step 3b:]
+- [INDICATOR_ID]: excluded — [applicability_reason verbatim]
+[Or: "None — all 9 probabilistic leading indicators apply"]
+
+---
+
 ## Active patterns
 
 Active: [list]
@@ -248,7 +306,7 @@ v[N] ([date]): [description of change]
 1. Save all three files
 2. Upload to Claude Project alongside:
    - maturity-engine SKILL.md (installed as skill)
-   - catalog.json
+   - catalog.yaml
    - jira_db.json
 3. Run test analysis: "Analyse [team] in [sprint]"
 4. Verify KPI values look reasonable

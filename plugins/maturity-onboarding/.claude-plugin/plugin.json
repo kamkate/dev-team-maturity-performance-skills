@@ -1,7 +1,7 @@
 {
   "name": "maturity-onboarding",
-  "description": "Configuration wizard that generates org-config.md and org-kpi-definitions.md for the maturity-engine skill — KPI customization, threshold calibration, and data-quality capture.",
-  "version": "1.0.0",
+  "description": "Configuration wizard that generates the manifest, org-config.md, and org-kpi-definitions.md for the maturity-engine skill — KPI customization, threshold calibration, leading-indicator applicability, and data-quality capture. Requires the maturity-core plugin.",
+  "version": "2.0.0",
   "author": {
     "name": "Kate Kamenistak"
   },

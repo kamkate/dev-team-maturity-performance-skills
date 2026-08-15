@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Jira DB",
+  "description": "Each table may be a JSON array of row objects (the documented CSV-derived shape) or a TinyDB-style object keyed by row index (the shape actually produced by real jira_db.json exports, e.g. DEV/DATA/jira_db.json). run_analysis.py::normalize_table already accepts both; this schema previously only allowed the array shape and would have rejected every real export it was run against — see docs/data-model.md Sec.2.3.",
+  "type": "object",
+  "required": ["A_Task", "A_Epic", "A_Initiative", "A_Sprints"],
+  "$defs": {
+    "table": {
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {"type": "object"}
+        },
+        {
+          "type": "object",
+          "additionalProperties": {"type": "object"}
+        }
+      ]
+    }
+  },
+  "properties": {
+    "A_Task": {"$ref": "#/$defs/table"},
+    "A_Epic": {"$ref": "#/$defs/table"},
+    "A_Initiative": {"$ref": "#/$defs/table"},
+    "A_Sprints": {"$ref": "#/$defs/table"}
+  },
+  "additionalProperties": false
+}

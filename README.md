@@ -3,7 +3,7 @@
 [![Claude Skill](https://img.shields.io/badge/Claude-Agent%20Skill-D97757?logo=anthropic&logoColor=white)](https://docs.claude.com/en/docs/claude-code/skills)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Two [Claude Agent Skills](https://docs.claude.com/en/docs/claude-code/skills) that turn a raw Jira export into a governed, explainable engineering-maturity analysis — no dashboards, no BI setup, no spreadsheet gymnastics. Point Claude at your data and ask.
+Three [Claude Agent Skills](https://docs.claude.com/en/docs/claude-code/skills) that turn a raw Jira export into a governed, explainable engineering-maturity analysis — no dashboards, no BI setup, no spreadsheet gymnastics. Point Claude at your data and ask.
 
 > Built as part of an MBA thesis prototype on AI-assisted engineering management. The skills are generic and reusable — no organization-specific data is included in this repo.
 
@@ -21,10 +21,13 @@ None of these hold up when a board, a VP, or a thesis committee asks "show me th
 
 ## How this solves it
 
-These two skills turn that into a governed, repeatable workflow:
+These three skills turn that into a governed, repeatable workflow:
 
 1. **`maturity-onboarding`** — a one-time (or per-change) setup wizard that captures how *your* organization actually tracks work in Jira, and produces versioned config files.
 2. **`maturity-engine`** — reads those config files plus your Jira export and produces a maturity report: **facts** (computed KPIs), **signals** (rule-based patterns), and **interventions** (from a fixed catalog) — never blended together, never invented.
+3. **`maturity-learning-loop`** — closes the loop: records which interventions were accepted, deferred, or skipped, auto-evaluates outcomes against KPI deltas after a lookback window, and turns that into ROI in engineer-days (and money, if you provide a cost rate).
+
+Both `maturity-engine` and `maturity-onboarding` run on a shared deterministic runner in **`maturity-core`** — install it alongside them.
 
 Every number is traceable back to a field in your data. Every intervention is traceable back to a catalog entry. Nothing is guessed.
 
@@ -59,8 +62,11 @@ Every number is traceable back to a field in your data. Every intervention is tr
 |---|---|
 | [`maturity-engine`](plugins/maturity-engine/skills/maturity-engine) | Computes 5 deterministic delivery KPIs from Jira data, detects diagnostic patterns, scores team maturity (0–100), and recommends interventions from a fixed catalog. |
 | [`maturity-onboarding`](plugins/maturity-onboarding/skills/maturity-onboarding) | Guides a CTO or consultant through configuring the engine for a new organization — KPI definitions, thresholds, active patterns, and data-quality notes. |
+| [`maturity-learning-loop`](plugins/maturity-learning-loop/skills/maturity-learning-loop) | Records intervention decisions, auto-evaluates outcomes two sprints later, computes ROI, and generates quarterly CTO reports. |
 
-The two skills are designed to be used together: **onboarding** produces the `org-config.md` and `org-kpi-definitions.md` files that the **engine** consumes at analysis time.
+Plus [`maturity-core`](plugins/maturity-core) — not a skill itself, but the shared runner, engine defaults, and JSON schemas that `maturity-engine` and `maturity-onboarding` both depend on.
+
+The skills are designed to be used together: **onboarding** produces the `org-config.md` and `org-kpi-definitions.md` files that the **engine** consumes at analysis time, and the **engine**'s intervention recommendations feed straight into the **learning loop** for tracking.
 
 ### Built-in governance
 
@@ -75,29 +81,36 @@ The two skills are designed to be used together: **onboarding** produces the `or
 
 - [Claude Code](https://docs.claude.com/en/docs/claude-code/overview), a Claude Project, or any Claude surface that supports [Agent Skills](https://docs.claude.com/en/docs/claude-code/skills)
 - Your own data files at analysis time:
-  - `jira_db.json` — exported Jira data (tasks, epics, initiatives, sprints)
-  - `catalog.json` — your intervention catalog
+  - `jira_db.json` (or the four-CSV equivalent) — exported Jira data (tasks, epics, initiatives, sprints)
+  - `catalog.yaml` — the intervention catalog (included in this repo, at the root)
   - `org-config.md` + `org-kpi-definitions.md` — produced by the onboarding skill
+  - `intervention_log.json` + `outcome_log.json` — used by the learning loop, start as `[]`
 
 ## Installation
 
 ### Option A — Claude Code plugin marketplace (recommended)
 
-This repo is a self-contained plugin marketplace, so it installs with two commands — no manual copying, and updates come with `/plugin marketplace update`.
+This repo is a self-contained plugin marketplace. `maturity-core` is a shared dependency — install it alongside whichever of the other skills you use.
 
 ```
 /plugin marketplace add kamkate/dev-team-maturity-performance-skills
+/plugin install maturity-core@dev-team-maturity-performance-skills
 /plugin install maturity-engine@dev-team-maturity-performance-skills
 /plugin install maturity-onboarding@dev-team-maturity-performance-skills
+/plugin install maturity-learning-loop@dev-team-maturity-performance-skills
 ```
 
 Or non-interactively from a terminal:
 
 ```bash
 claude plugin marketplace add kamkate/dev-team-maturity-performance-skills
+claude plugin install maturity-core@dev-team-maturity-performance-skills
 claude plugin install maturity-engine@dev-team-maturity-performance-skills
 claude plugin install maturity-onboarding@dev-team-maturity-performance-skills
+claude plugin install maturity-learning-loop@dev-team-maturity-performance-skills
 ```
+
+Updates come with `/plugin marketplace update`.
 
 ### Option B — manual copy
 
@@ -105,9 +118,13 @@ If you just want the skill files without the plugin system:
 
 ```bash
 git clone https://github.com/kamkate/dev-team-maturity-performance-skills.git
+cp -r dev-team-maturity-performance-skills/plugins/maturity-core ~/.claude/skills/
 cp -r dev-team-maturity-performance-skills/plugins/maturity-engine/skills/maturity-engine ~/.claude/skills/
 cp -r dev-team-maturity-performance-skills/plugins/maturity-onboarding/skills/maturity-onboarding ~/.claude/skills/
+cp -r dev-team-maturity-performance-skills/plugins/maturity-learning-loop/skills/maturity-learning-loop ~/.claude/skills/
 ```
+
+`maturity-core` must sit as a sibling of the skill folders (e.g. `~/.claude/skills/maturity-core`) — the skills reference its runner by relative path.
 
 Claude Code discovers skills automatically from `~/.claude/skills/` (personal, all platforms) or `.claude/skills/` (per-project) — no restart required for a new session.
 
@@ -129,36 +146,69 @@ The onboarding skill walks through organization context, KPI customization, thre
 
 The engine loads your config files, computes KPIs, detects patterns, scores maturity, and returns a structured report — facts, signals, and catalog-sourced interventions kept clearly separated. See [`output-template.md`](plugins/maturity-engine/skills/maturity-engine/references/output-template.md) for the exact output structure.
 
+**3. Track what happened next:**
+
+> "We're accepting INT-012 for Team Alpha"
+> "Did the WIP limit intervention work for Team Alpha?"
+> "Generate this quarter's ROI report"
+
+The learning loop records the decision and a KPI baseline, then — once the lookback sprint has closed in your data — re-runs the engine, computes the delta, and assigns a verdict (Effective / Partial / Ineffective) with an ROI estimate. See [`roi-model.md`](plugins/maturity-learning-loop/skills/maturity-learning-loop/references/roi-model.md) for the conversion formulas.
+
 ---
 
 ## Repo structure
 
 ```
+catalog.yaml                       the intervention catalog — required by maturity-engine
+
 .claude-plugin/
-  marketplace.json                 marketplace catalog listing both plugins
+  marketplace.json                 marketplace catalog listing all 4 plugins
 
 plugins/
+  maturity-core/
+    .claude-plugin/plugin.json     plugin manifest
+    run_analysis.py                shared deterministic runner used by engine + onboarding
+    evaluate.py                    outcome/delta evaluation helpers used by the learning loop
+    leading_indicators.py          probabilistic leading-indicator signal logic
+    engine_defaults.json           engine-level KPI/threshold defaults
+    schemas/                       JSON Schema for catalog, jira_db, manifest, org-config, org-kpi-definitions
+
   maturity-engine/
     .claude-plugin/plugin.json     plugin manifest
     skills/maturity-engine/
-      SKILL.md                     entry point — governance, session startup, data model
+      SKILL.md                     entry point — governance, required workflow, runner invocation
       references/
         kpi-definitions.md         full KPI formulas, null handling, edge cases
         pattern-rules.md           atomic + compound pattern detection logic
         scoring-model.md           maturity score aggregation formula
         output-template.md         required output structure for every response
         guardrails.md              hard/soft rules the engine cannot break
+        leading-indicator-rules.md probabilistic early-warning signal rules
       org-configs/
         template.md                copy this to configure a new organization
 
   maturity-onboarding/
     .claude-plugin/plugin.json     plugin manifest
     skills/maturity-onboarding/
-      SKILL.md                     entry point — 8-step onboarding flow
+      SKILL.md                     entry point — manifest + config generation flow
       references/
         kpi-walkthrough.md         per-KPI customization dialogue
         threshold-guide.md         threshold calibration guidance per KPI
+        leading-indicator-applicability.md  which leading indicators apply to this org, and why
         output-generator.md        exact file formats for onboarding outputs
+
+  maturity-learning-loop/
+    .claude-plugin/plugin.json     plugin manifest
+    skills/maturity-learning-loop/
+      SKILL.md                     entry point — 3-flow orchestrator (record / evaluate / report)
+      README.md                    install guide and prerequisites
+      intervention_log.json        decision record, starts as []
+      outcome_log.json             evaluation results, starts as []
+      references/
+        roi-model.md                KPI delta → eng-days/money conversion formulas
+        verdict-rules.md            Effective / Partial / Ineffective logic
+        report-template.md          CTO quarterly report format
+        guardrails-learning.md      hard constraints specific to outcome tracking
 ```
 
 ---

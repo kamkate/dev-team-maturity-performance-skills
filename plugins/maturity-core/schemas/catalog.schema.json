@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Catalog",
+  "type": "object",
+  "required": ["recommendation_catalog"],
+  "properties": {
+    "recommendation_catalog": {
+      "type": "object",
+      "patternProperties": {
+        ".+": {
+          "type": "object",
+          "required": ["recommendation_id", "catalog_status", "applicable_pattern_ids", "intervention", "effort", "impact"],
+          "properties": {
+            "recommendation_id": {"type": "string"},
+            "catalog_status": {"type": "string", "enum": ["active"]},
+            "applicable_pattern_ids": {"type": "array", "items": {"type": "string"}},
+            "applicable_leading_risk_ids": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "Leading-indicator risk IDs (engine_defaults.json's leading_risk_ids) this entry also matches against -- a separate namespace from applicable_pattern_ids (KPI patterns only). Optional; omit if this entry is only ever KPI-pattern-triggered."
+            },
+            "intervention": {"type": "string"},
+            "effort": {"type": "string", "enum": ["low", "medium", "high"]},
+            "impact": {"type": "string", "enum": ["low", "medium", "high"]}
+          },
+          "additionalProperties": true
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

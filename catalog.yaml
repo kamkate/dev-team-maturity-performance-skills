@@ -1,0 +1,482 @@
+recommendation_catalog:
+  "1":
+    recommendation_id: INT-001
+    recommendation_name: Enforce WIP Limits
+    catalog_status: active
+    applicable_pattern_ids:
+    - HIGH_EPIC_WIP
+    - LONG_CYCLE_TIME
+    - WIP_DEATH_SPIRAL
+    applicable_leading_risk_ids:
+    - EPIC_SPRAWL_RISK
+    context: The team may be carrying too many active epics in parallel, which increases context switching and slows delivery flow.
+    hypothesis: Reducing active epic WIP should reduce multitasking, lower cycle time, and improve sprint predictability.
+    intervention: Set an explicit team-level WIP limit for active epics and review it during sprint planning and weekly delivery checkpoints.
+    mechanism: Lower WIP reduces context switching and allows the team to finish active work before starting new work.
+    kpi_impact_map: EWIP ↓ → SCT ↓ → SC ↑ → ECT ↓ → RC ↑
+    feedback_loop: "Breaks the WIP Death Spiral: EWIP ↑ → SCT ↑ → ECT ↑ → EWIP ↑."
+    expected_outcome: Lower active epic count, shorter story cycle time, and more predictable sprint completion.
+    secondary_effects: Some lower-priority initiatives may wait longer before entering execution.
+    preconditions: Leadership must agree which epics are truly active and which should be paused.
+    risks: If urgent exceptions are unmanaged, the WIP limit may be bypassed and lose credibility.
+    effort: low
+    impact: high
+    acceptability: medium
+    feasibility: high
+    confidence_level: high
+    evidence_source_ids:
+    - parallel_epics
+    - cycle_time_p50
+    evidence_type: mixed
+    owner_role: Engineering Manager
+    review_cycle: 2 sprints
+    schema_version: v1
+    definition_version: recommendation_catalog_v1
+    created_at: 2026-05-22T00:00:00+02:00
+    updated_at: 2026-08-15T00:00:00+02:00
+
+  "2":
+    recommendation_id: INT-002
+    recommendation_name: Split Large Epics
+    catalog_status: active
+    applicable_pattern_ids:
+    - HIGH_EPIC_WIP
+    - LONG_CYCLE_TIME
+    - LONG_EPIC_DEVELOPMENT_TIME
+    context: Long-running epics may hide excessive scope, unclear boundaries, or dependency complexity.
+    hypothesis: Splitting large epics into smaller delivery slices should reduce epic cycle time and create earlier progress signals.
+    intervention: Run an epic slicing review and split oversized epics into smaller independently reviewable delivery units.
+    mechanism: Smaller epics reduce coordination load, make progress visible earlier, and reduce the probability of long-running work.
+    kpi_impact_map: ECT ↓ → EWIP ↓; SCT ↓ → SC ↑
+    feedback_loop: Reduces epic accumulation by increasing closure rate of active epics.
+    expected_outcome: Shorter epic development time, improved flow visibility, and more reliable sprint planning.
+    secondary_effects: Backlog structure may become more detailed and require stronger refinement discipline.
+    preconditions: Product and engineering leads must be available to redefine epic boundaries.
+    risks: Superficial splitting may create tracking overhead without reducing actual dependency complexity.
+    effort: medium
+    impact: high
+    acceptability: medium
+    feasibility: medium
+    confidence_level: high
+    evidence_source_ids:
+    - cycle_time_p50
+    - epic_dev_time
+    evidence_type: mixed
+    owner_role: Product Manager
+    review_cycle: 2 sprints
+    schema_version: v1
+    definition_version: recommendation_catalog_v1
+    created_at: 2026-05-22T00:00:00+02:00
+    updated_at: 2026-05-22T00:00:00+02:00
+
+  "3":
+    recommendation_id: INT-003
+    recommendation_name: Improve Sprint Planning Discipline
+    catalog_status: active
+    applicable_pattern_ids:
+    - LONG_CYCLE_TIME
+    - LOW_SPRINT_COMPLETION
+    applicable_leading_risk_ids:
+    - CARRYOVER_RISK
+    context: Sprint scope may not match the team’s demonstrated delivery capacity.
+    hypothesis: Planning from recent observed capacity should improve sprint completion without increasing team pressure.
+    intervention: Use recent sprint completion, carry-over, and cycle-time evidence to set a conservative sprint commitment.
+    mechanism: Capacity-based planning reduces overcommitment and improves the probability that planned work finishes inside the sprint.
+    kpi_impact_map: SC ↑ → ECT ↓; SC ↑ → RC ↑
+    feedback_loop: Helps stop the Delivery Stall by restoring sprint-level predictability.
+    expected_outcome: More realistic sprint commitments and fewer incomplete items carried into the next sprint.
+    secondary_effects: The team may initially commit to less work while recalibrating its baseline.
+    preconditions: Recent sprint history must be available and reviewed during planning.
+    risks: If stakeholders continue to inject work mid-sprint, planning discipline will not improve outcomes.
+    effort: low
+    impact: medium
+    acceptability: high
+    feasibility: high
+    confidence_level: high
+    evidence_source_ids:
+    - sprint_completion
+    evidence_type: quantitative
+    owner_role: Scrum Master
+    review_cycle: 2 sprints
+    schema_version: v1
+    definition_version: recommendation_catalog_v1
+    created_at: 2026-05-22T00:00:00+02:00
+    updated_at: 2026-08-15T00:00:00+02:00
+
+  "4":
+    recommendation_id: INT-004
+    recommendation_name: Increase Roadmap Alignment
+    catalog_status: active
+    applicable_pattern_ids:
+    - LOW_ROADMAP_CONTRIBUTION
+    - ROADMAP_DRIFT
+    applicable_leading_risk_ids:
+    - INITIATIVE_LINK_RISK
+    - SOLO_TASK_RISK
+    context: Sprint work may not sufficiently contribute to roadmap-level objectives.
+    hypothesis: Making roadmap linkage explicit before sprint commitment should increase the share of work connected to strategic priorities.
+    intervention: Review sprint candidates against roadmap goals and require explicit roadmap classification before finalizing sprint scope.
+    mechanism: Explicit alignment checks reduce drift toward unplanned or locally optimized work.
+    kpi_impact_map: RC ↑ → ECT ↓; RC ↑ → EWIP ↓; RC ↑ → SC ↑
+    feedback_loop: Supports a positive delivery cycle by concentrating capacity on fewer roadmap-relevant epics.
+    expected_outcome: Higher roadmap contribution and clearer leadership visibility into strategic delivery.
+    secondary_effects: Some local improvement work may be delayed if roadmap contribution is prioritized.
+    preconditions: Roadmap priorities must be available in a form usable during sprint planning.
+    risks: If roadmap labels are vague, teams may tag work inconsistently.
+    effort: medium
+    impact: medium
+    acceptability: medium
+    feasibility: high
+    confidence_level: medium
+    evidence_source_ids:
+    - roadmap_contribution
+    evidence_type: quantitative
+    owner_role: Engineering Manager
+    review_cycle: 2 sprints
+    schema_version: v1
+    definition_version: recommendation_catalog_v1
+    created_at: 2026-05-22T00:00:00+02:00
+    updated_at: 2026-08-15T00:00:00+02:00
+
+  "5":
+    recommendation_id: INT-005
+    recommendation_name: Introduce Intake Control
+    catalog_status: active
+    applicable_pattern_ids:
+    - HIGH_EPIC_WIP
+    - ROADMAP_DRIFT
+    context: New work may be entering execution faster than the team can finish existing work.
+    hypothesis: Controlling intake should prevent uncontrolled WIP growth and protect roadmap execution capacity.
+    intervention: "Create a lightweight intake rule: no new epic enters active execution unless an existing active epic is closed, paused, or explicitly escalated."
+    mechanism: Intake control stabilizes the system by limiting the inflow of parallel work.
+    kpi_impact_map: EWIP ↓ → SCT ↓; EWIP ↓ → ECT ↓; EWIP ↓ → RC ↑
+    feedback_loop: Prevents re-entry into the WIP Death Spiral after WIP limits are introduced.
+    expected_outcome: More stable active portfolio and reduced context switching.
+    secondary_effects: Stakeholders may need to negotiate priorities more explicitly.
+    preconditions: Active epic status must be visible and trusted.
+    risks: Without leadership support, intake control may be perceived as bureaucracy.
+    effort: medium
+    impact: high
+    acceptability: medium
+    feasibility: medium
+    confidence_level: high
+    evidence_source_ids:
+    - parallel_epics
+    - roadmap_contribution
+    evidence_type: mixed
+    owner_role: VP Engineering
+    review_cycle: 2 sprints
+    schema_version: v1
+    definition_version: recommendation_catalog_v1
+    created_at: 2026-05-22T00:00:00+02:00
+    updated_at: 2026-05-22T00:00:00+02:00
+
+  "6":
+    recommendation_id: INT-006
+    recommendation_name: Run Story Slicing Workshop
+    catalog_status: active
+    applicable_pattern_ids:
+    - LONG_CYCLE_TIME
+    - LOW_SPRINT_COMPLETION
+    context: Stories may be too large or insufficiently prepared to complete reliably within a sprint.
+    hypothesis: Improving story slicing should reduce story cycle time and improve sprint completion.
+    intervention: Run a story slicing workshop focused on breaking upcoming work into smaller, testable, independently valuable slices.
+    mechanism: Smaller stories reduce delivery batch size and increase the chance of completion inside the sprint boundary.
+    kpi_impact_map: SCT ↓ → SC ↑; SCT ↓ → ECT ↓
+    feedback_loop: Helps reverse the Delivery Stall caused by long story cycle time.
+    expected_outcome: Shorter median development cycle time and higher completion reliability.
+    secondary_effects: More refinement time may be needed before sprint planning.
+    preconditions: Upcoming backlog items must be available for refinement.
+    risks: Over-slicing may create artificial tasks that do not deliver meaningful value.
+    effort: medium
+    impact: high
+    acceptability: high
+    feasibility: high
+    confidence_level: high
+    evidence_source_ids:
+    - cycle_time_p50
+    - sprint_completion
+    evidence_type: mixed
+    owner_role: Product Manager
+    review_cycle: 2 sprints
+    schema_version: v1
+    definition_version: recommendation_catalog_v1
+    created_at: 2026-05-22T00:00:00+02:00
+    updated_at: 2026-05-22T00:00:00+02:00
+
+  "7":
+    recommendation_id: INT-007
+    recommendation_name: Clarify Definition of Ready
+    catalog_status: active
+    applicable_pattern_ids:
+    - LONG_CYCLE_TIME
+    - LOW_SPRINT_COMPLETION
+    applicable_leading_risk_ids:
+    - PLANNING_READINESS_RISK
+    context: Work may enter sprint execution before requirements, dependencies, or acceptance criteria are sufficiently clear.
+    hypothesis: A clearer Definition of Ready should reduce blocked time and improve flow efficiency.
+    intervention: "Define minimum readiness criteria for work entering sprint execution: clear outcome, owner, acceptance criteria, dependency status, and expected size."
+    mechanism: Better readiness reduces waiting, rework, and clarification loops during development.
+    kpi_impact_map: SCT ↓ → SC ↑
+    feedback_loop: Reduces one of the drivers of story cycle-time degradation.
+    expected_outcome: Fewer blocked stories and shorter cycle time.
+    secondary_effects: Some items may be delayed until they are ready enough to start.
+    preconditions: Team and product owner must agree on readiness criteria.
+    risks: If applied too rigidly, the rule may slow urgent work unnecessarily.
+    effort: low
+    impact: medium
+    acceptability: high
+    feasibility: high
+    confidence_level: medium
+    evidence_source_ids:
+    - cycle_time_p50
+    - sprint_completion
+    evidence_type: qualitative
+    owner_role: Scrum Master
+    review_cycle: 2 sprints
+    schema_version: v1
+    definition_version: recommendation_catalog_v1
+    created_at: 2026-05-22T00:00:00+02:00
+    updated_at: 2026-08-15T00:00:00+02:00
+
+  "8":
+    recommendation_id: INT-008
+    recommendation_name: Run Blocker Aging Review
+    catalog_status: active
+    applicable_pattern_ids:
+    - LONG_CYCLE_TIME
+    - LONG_EPIC_DEVELOPMENT_TIME
+    applicable_leading_risk_ids:
+    - LONG_BLOCKED_TASKS
+    - STALLED_WIP
+    context: Long cycle time may be caused by unresolved blockers, dependency waiting, or slow decisions.
+    hypothesis: A recurring blocker aging review should reduce waiting time and prevent blocked items from silently aging.
+    intervention: Review all active items older than the team’s cycle-time threshold and assign an explicit unblock owner and next action.
+    mechanism: Aging review makes hidden waiting visible and creates ownership for removing blockers.
+    kpi_impact_map: SCT ↓ → SC ↑; SCT ↓ → ECT ↓
+    feedback_loop: Interrupts the Delivery Stall by reducing time spent in blocked or unclear states.
+    expected_outcome: Lower median cycle time and fewer old unfinished items.
+    secondary_effects: Managers may need to escalate cross-team dependencies.
+    preconditions: The team must be able to identify aging items from Jira data.
+    risks: If blockers require external teams, local review alone may not resolve the issue.
+    effort: low
+    impact: medium
+    acceptability: high
+    feasibility: high
+    confidence_level: medium
+    evidence_source_ids:
+    - cycle_time_p50
+    - epic_dev_time
+    evidence_type: mixed
+    owner_role: Engineering Manager
+    review_cycle: 1 sprint
+    schema_version: v1
+    definition_version: recommendation_catalog_v1
+    created_at: 2026-05-22T00:00:00+02:00
+    updated_at: 2026-08-15T00:00:00+02:00
+
+  "9":
+    recommendation_id: INT-009
+    recommendation_name: Create Roadmap Capacity Guardrail
+    catalog_status: active
+    applicable_pattern_ids:
+    - HIGH_EPIC_WIP
+    - LOW_ROADMAP_CONTRIBUTION
+    - ROADMAP_DRIFT
+    applicable_leading_risk_ids:
+    - INITIATIVE_LINK_RISK
+    - EPIC_SPRAWL_RISK
+    - SOLO_TASK_RISK
+    context: Unplanned work, bugs, or local optimizations may be consuming too much sprint capacity.
+    hypothesis: A minimum roadmap-capacity guardrail should protect strategic execution while still allowing necessary operational work.
+    intervention: Set a target range for roadmap-linked sprint work and review exceptions during planning.
+    mechanism: A visible capacity guardrail prevents roadmap work from being crowded out by reactive demand.
+    kpi_impact_map: RC ↑ → ECT ↓; RC ↑ → EWIP ↓
+    feedback_loop: Reduces roadmap drift and increases concentration on priority epics.
+    expected_outcome: Higher roadmap contribution and stronger alignment between sprint execution and strategic objectives.
+    secondary_effects: Operational work may need explicit prioritization rather than informal insertion.
+    preconditions: Roadmap-linked work must be classified consistently using roadmap_depth.
+    risks: A fixed percentage target may be harmful during incidents or major production instability.
+    effort: medium
+    impact: medium
+    acceptability: medium
+    feasibility: medium
+    confidence_level: medium
+    evidence_source_ids:
+    - roadmap_contribution
+    evidence_type: quantitative
+    owner_role: Product Director
+    review_cycle: 2 sprints
+    schema_version: v1
+    definition_version: recommendation_catalog_v1
+    created_at: 2026-05-22T00:00:00+02:00
+    updated_at: 2026-08-15T00:00:00+02:00
+
+  "10":
+    recommendation_id: INT-010
+    recommendation_name: Run Epic Closure Review
+    catalog_status: active
+    applicable_pattern_ids:
+    - HIGH_EPIC_WIP
+    - LONG_EPIC_DEVELOPMENT_TIME
+    context: Epics may remain open after meaningful delivery has stopped or after scope has become stale.
+    hypothesis: Reviewing open epics should reduce artificial WIP and improve portfolio visibility.
+    intervention: Review all active epics older than the epic development-time threshold and decide whether to close, split, pause, or re-scope them.
+    mechanism: Epic closure review removes stale WIP and forces explicit decisions about long-running work.
+    kpi_impact_map: ECT ↓ → EWIP ↓; EWIP ↓ → SCT ↓
+    feedback_loop: Reduces epic accumulation and prevents old work from inflating WIP.
+    expected_outcome: Cleaner active epic portfolio and lower average epic development time.
+    secondary_effects: Some epics may need product-level redefinition.
+    preconditions: Epic ownership and current business relevance must be clear.
+    risks: Closing epics administratively without resolving real scope may distort reporting.
+    effort: medium
+    impact: high
+    acceptability: medium
+    feasibility: medium
+    confidence_level: high
+    evidence_source_ids:
+    - epic_dev_time
+    - parallel_epics
+    evidence_type: mixed
+    owner_role: Engineering Manager
+    review_cycle: 2 sprints
+    schema_version: v1
+    definition_version: recommendation_catalog_v1
+    created_at: 2026-05-22T00:00:00+02:00
+    updated_at: 2026-05-22T00:00:00+02:00
+
+  "11":
+    recommendation_id: INT-011
+    recommendation_name: Stabilize Sprint Scope
+    catalog_status: active
+    applicable_pattern_ids:
+    - LOW_SPRINT_COMPLETION
+    - ROADMAP_DRIFT
+    applicable_leading_risk_ids:
+    - MIDSPRINT_SCOPE_PRESSURE
+    context: Sprint completion may be degraded by uncontrolled scope changes during the sprint.
+    hypothesis: Reducing mid-sprint scope changes should improve delivery reliability and protect committed work.
+    intervention: "Introduce a lightweight mid-sprint scope-change rule: additions require explicit trade-off, owner approval, and removal of equivalent capacity."
+    mechanism: Scope stability protects planned work and makes delivery commitments more reliable.
+    kpi_impact_map: SC ↑; RC ↑
+    feedback_loop: Reduces delivery volatility and protects roadmap contribution.
+    expected_outcome: Higher sprint completion and clearer trade-offs when urgent work appears.
+    secondary_effects: Stakeholders may need to make prioritization decisions earlier.
+    preconditions: The team must distinguish planned work from added work.
+    risks: Too much rigidity may reduce responsiveness to legitimate urgent issues.
+    effort: low
+    impact: medium
+    acceptability: medium
+    feasibility: high
+    confidence_level: medium
+    evidence_source_ids:
+    - roadmap_contribution
+    - sprint_completion
+    evidence_type: mixed
+    owner_role: Scrum Master
+    review_cycle: 2 sprints
+    schema_version: v1
+    definition_version: recommendation_catalog_v1
+    created_at: 2026-05-22T00:00:00+02:00
+    updated_at: 2026-08-15T00:00:00+02:00
+
+  "12":
+    recommendation_id: INT-012
+    recommendation_name: Focus on One Primary Epic per Team
+    catalog_status: active
+    applicable_pattern_ids:
+    - HIGH_EPIC_WIP
+    - WIP_DEATH_SPIRAL
+    applicable_leading_risk_ids:
+    - EPIC_SPRAWL_RISK
+    context: The team may be spreading effort across too many active initiatives at the same time.
+    hypothesis: Selecting one primary execution focus should reduce context switching and improve throughput on the most important epic.
+    intervention: For the next sprint, select one primary epic focus and limit secondary epic work to explicitly justified exceptions.
+    mechanism: Sharper focus concentrates team capacity and reduces coordination overhead.
+    kpi_impact_map: EWIP ↓ → SCT ↓ → SC ↑; EWIP ↓ → ECT ↓
+    feedback_loop: Supports the Virtuous Cycle by reducing WIP first.
+    expected_outcome: Faster progress on priority epic work and lower story cycle time.
+    secondary_effects: Non-primary epic work may slow temporarily.
+    preconditions: Leadership must agree which epic has highest priority.
+    risks: If priority changes frequently, the intervention may create confusion instead of focus.
+    effort: low
+    impact: high
+    acceptability: medium
+    feasibility: high
+    confidence_level: high
+    evidence_source_ids:
+    - cycle_time_p50
+    - parallel_epics
+    evidence_type: mixed
+    owner_role: VP Engineering
+    review_cycle: 1 sprint
+    schema_version: v1
+    definition_version: recommendation_catalog_v1
+    created_at: 2026-05-22T00:00:00+02:00
+    updated_at: 2026-08-15T00:00:00+02:00
+
+  "13":
+    recommendation_id: INT-013
+    recommendation_name: Establish Bug Intake Triage
+    catalog_status: active
+    applicable_pattern_ids: []
+    applicable_leading_risk_ids:
+    - BUG_INJECTION_RISK
+    - BUG_FEATURE_RISK
+    context: Bugs may enter sprint execution without a shared severity/priority discipline, silently displacing planned roadmap and feature work beyond what was committed at planning.
+    hypothesis: A lightweight triage gate for incoming bugs should reduce uncontrolled mid-sprint bug injection and stabilize the bug-to-feature ratio without blocking genuinely urgent fixes.
+    intervention: Introduce a bug-triage checkpoint — any bug proposed for mid-sprint entry is classified against an agreed severity scale (blocker / critical / non-critical); only blocker/critical bugs enter the current sprint, others queue for the next planning cycle.
+    mechanism: Explicit severity triage separates genuinely urgent defects from routine bug backlog, preventing unmanaged bug volume from silently consuming sprint and roadmap capacity.
+    kpi_impact_map: bug volume ↓ → SC ↑; bug volume ↓ → RC ↑
+    feedback_loop: Prevents bug backlog from becoming a second, uncontrolled intake channel alongside planned scope — complements INT-011's mid-sprint scope-change rule, specific to defects rather than any addition.
+    expected_outcome: Lower uncontrolled bug injection rate, more stable bug-to-feature ratio, protected sprint completion and roadmap contribution.
+    secondary_effects: Non-critical bugs may sit longer in the backlog; requires an agreed escalation path for urgent items misclassified as non-critical.
+    preconditions: Team has an agreed bug severity/priority scheme; someone (tech lead / EM / PO) is empowered to make the triage call in real time.
+    risks: If the triage gate is bypassed under pressure, it loses credibility quickly — same risk pattern as INT-001's WIP limit.
+    effort: low
+    impact: medium
+    acceptability: medium
+    feasibility: high
+    confidence_level: medium
+    evidence_source_ids:
+    - mid_sprint_bug_injection_rate
+    - bug_to_feature_ratio
+    evidence_type: mixed
+    owner_role: Engineering Manager
+    review_cycle: 2 sprints
+    schema_version: v1
+    definition_version: recommendation_catalog_v1
+    created_at: 2026-08-15T00:00:00+02:00
+    updated_at: 2026-08-15T00:00:00+02:00
+
+  "14":
+    recommendation_id: INT-014
+    recommendation_name: Strengthen Definition of Done
+    catalog_status: active
+    applicable_pattern_ids: []
+    applicable_leading_risk_ids:
+    - REOPEN_RISK
+    context: Tasks may be marked complete before verification (testing, review, acceptance) is genuinely finished, causing them to be reopened later once the gap surfaces.
+    hypothesis: A clearer, checklist-based Definition of Done should reduce the rate at which completed work is later reopened, and make Sprint Completion a more trustworthy signal.
+    intervention: Define explicit Definition of Done criteria (tested, peer-reviewed, acceptance criteria verified) required before a task can transition to Done; use a lightweight completion checklist at the point of closing each task.
+    mechanism: Clear, checked completion criteria prevent premature Done status, reducing the rate at which finished work is later found incomplete and must reopen.
+    kpi_impact_map: reopen rate ↓ → SC ↑; reopen rate ↓ → SCT ↓
+    feedback_loop: Complements INT-007 (Definition of Ready) — DoR governs entry into execution, this governs exit; together they bound the sprint's work at both ends.
+    expected_outcome: Lower reopen rate, more reliable Sprint Completion figure, less rework-driven cycle time inflation.
+    secondary_effects: Initial adoption may slightly slow the pace of marking items Done while the team adjusts to the checklist.
+    preconditions: Team and Product Owner agree on concrete DoD criteria; minimal test/review capacity exists to apply them consistently.
+    risks: An overly strict or bureaucratic DoD applied rigidly under time pressure can be bypassed or resented — same tension flagged in INT-007's own risk field for Definition of Ready.
+    effort: low
+    impact: medium
+    acceptability: medium
+    feasibility: high
+    confidence_level: medium
+    evidence_source_ids:
+    - reopened_tasks_ratio
+    evidence_type: mixed
+    owner_role: Scrum Master
+    review_cycle: 2 sprints
+    schema_version: v1
+    definition_version: recommendation_catalog_v1
+    created_at: 2026-08-15T00:00:00+02:00
+    updated_at: 2026-08-15T00:00:00+02:00

@@ -79,6 +79,68 @@ active_patterns:
 
 ---
 
+## Leading indicator thresholds
+
+# watch_threshold / concern_threshold for the probabilistic leading
+# indicators (see maturity-engine/references/leading-indicator-rules.md).
+# Defaults below are market-benchmark-informed starting points, NOT
+# validated against this org's own sprint history yet -- see
+# leading-indicator-market-benchmarks.md for full sourcing and
+# confidence_basis meanings. Re-calibrate once enough closed sprints exist
+# (see TODO_projekt.md "Historický backtesting předstihových signálů").
+# 2 of 9 (long_blocked_count, stalled_wip_count) have no market benchmark
+# and stay null on purpose -- do not fill these in with a guess;
+# guardrails.md Rule 10 requires a missing threshold to stay visibly
+# missing, never silently defaulted.
+#
+# `applicable` (default true if omitted) / `applicability_reason`
+# (required, non-empty, when applicable: false) record whether each
+# indicator even makes sense for this org's workflow -- e.g. an org with
+# no story points has no meaningful missing_sp_ratio. Ask this during
+# onboarding (see maturity-onboarding/references/
+# leading-indicator-applicability.md) rather than leaving every indicator
+# at the applicable-by-default value without checking it fits.
+
+leading_indicator_thresholds:
+  carryover_rate:
+    watch_threshold: 0.10
+    concern_threshold: 0.20
+    confidence_basis: market_benchmark_convergent
+  reopen_proxy_count:
+    watch_threshold: 0.05
+    concern_threshold: 0.10
+    confidence_basis: market_benchmark_convergent
+  missing_sp_ratio:
+    watch_threshold: 0.20
+    concern_threshold: 0.40
+    confidence_basis: market_benchmark_proxy
+  mid_sprint_task_injection:
+    watch_threshold: 0.10
+    concern_threshold: 0.20
+    confidence_basis: market_benchmark_proxy
+  bug_injection_rate:
+    watch_threshold: 0.15
+    concern_threshold: 0.30
+    confidence_basis: market_benchmark_proxy_different_metric
+  bug_feature_ratio:
+    watch_threshold: 0.10
+    concern_threshold: 0.20
+    confidence_basis: market_benchmark_proxy
+  late_completion_spike:
+    watch_threshold: 0.25
+    concern_threshold: 0.40
+    confidence_basis: qualitative_pattern_operationalized
+  long_blocked_count:
+    watch_threshold: null
+    concern_threshold: null
+    confidence_basis: no_market_benchmark_found
+  stalled_wip_count:
+    watch_threshold: null
+    concern_threshold: null
+    confidence_basis: no_market_benchmark_found
+
+---
+
 ## Roadmap depth logic
 
 # Describe how this organization defines strategic work in Jira.

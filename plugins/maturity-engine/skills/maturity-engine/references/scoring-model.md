@@ -2,9 +2,17 @@
 definition_version: maturity_v1
 depends_on: kpi_v2_aligned, pattern-rules-v1
 
-This file defines how 5 KPI levels aggregate into one maturity score.
-The formula is fixed. It cannot be changed during a conversation.
-Changes to weighting or aggregation require a new definition_version.
+> ⚠️ **DEPRECATED — not read by the engine or SKILL.md.** As of engine-v2,
+> the single source of truth for the scoring formula and bands is
+> `maturity-core/engine_defaults.json` (`scoring` block, version `maturity_v1`).
+> This file is kept for historical and thesis reference only. Do not edit
+> this file expecting it to change engine behavior — edit
+> `engine_defaults.json` instead.
+
+This file previously defined how 5 KPI levels aggregate into one maturity
+score, retained below for narrative/thesis context. The formula is fixed
+and cannot be changed during a conversation; changes to weighting or
+aggregation require a new definition_version in engine_defaults.json.
 
 ---
 

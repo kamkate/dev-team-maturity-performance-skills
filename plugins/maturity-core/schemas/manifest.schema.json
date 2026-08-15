@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Manifest",
+  "type": "object",
+  "required": ["jira_db_path", "org_config_path", "org_kpi_definitions_path", "catalog_path"],
+  "properties": {
+    "jira_db_path": {"type": "string"},
+    "org_config_path": {"type": "string"},
+    "org_kpi_definitions_path": {"type": "string"},
+    "catalog_path": {"type": "string"}
+  },
+  "additionalProperties": false
+}

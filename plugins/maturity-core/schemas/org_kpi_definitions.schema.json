@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Org KPI Definitions (frontmatter)",
+  "description": "Validates only the file-level frontmatter fields of org-kpi-definitions.md (parsed the same flat way as org-config.md, via parse_markdown_kv over the text preceding the first ```pipeline block). It does NOT validate the pipeline blocks themselves — each ```pipeline block should be extracted with run_analysis.py::load_kpi_pipelines and validated individually against kpi_pipeline.schema.json. Splitting the two schemas mirrors the file's own split between human-readable prose/frontmatter and machine-readable pipeline logic (D2).",
+  "type": "object",
+  "required": ["definition_version", "org_name"],
+  "properties": {
+    "definition_version": {"type": "string"},
+    "org_name": {"type": "string", "minLength": 1},
+    "parent_engine_version": {"type": "string"}
+  },
+  "additionalProperties": true
+}

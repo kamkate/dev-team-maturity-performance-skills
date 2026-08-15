@@ -14,14 +14,25 @@ For each KPI: show default, ask if it fits, capture custom definition if not.
 > Measures what share of sprint work is connected to strategic priorities.
 >
 > **Engine default definition:**
-> A task counts as roadmap-linked if:
-> - Its parent epic has a Roadmap Type field set to 'committed' or 'stretched', OR
-> - Its parent epic is linked to an Initiative that has a Quarter defined
+> A task counts as roadmap-linked if its parent epic has a non-null
+> Initiative key (i.e. the epic is linked to a strategic initiative).
 >
 > **Does this match how your organization tracks strategic work in Jira?**
 > (yes / no)"
 
 **If yes:** use engine default. Ask threshold question only.
+
+**Important — one-hop limit:** the engine's `linked_to` predicate can only
+resolve one join hop (e.g. Task → Epic). It cannot currently chase a
+second hop (e.g. Epic → Initiative → Initiative's own Quarter field) in a
+single pipeline condition. Do not translate a rule like "epic's initiative
+has a Quarter defined" into `linked_to` targeting a field that only exists
+on the *initiative*, not the epic — that field will always read null off
+the epic row and silently produce 0% for every team. If a rule genuinely
+needs a second hop, say so explicitly and either use the epic's own
+`Initiative key` as a proxy (the default above — matches ~96% of cases
+where quarter-based linkage was tested) or flag it as a known engine
+limitation rather than encoding something the DSL can't actually run.
 
 **If no:** ask these questions in order:
 
@@ -36,8 +47,9 @@ For each KPI: show default, ask if it fits, capture custom definition if not.
    in your Jira? For example:
    - 'Task has a parent epic AND that epic has an Initiative key set'
    - 'Task has label ROADMAP'
-   - 'Task's epic has a non-null Quarter field'
-   Tell me your rule."
+   Tell me your rule." (If the rule needs a field that lives on the
+   Initiative record rather than the Epic record, see the one-hop
+   limit note above before translating it into a formula.)
 
 4. After receiving the rule, translate it into formal definition:
    > "Based on what you described, the formula would be:
