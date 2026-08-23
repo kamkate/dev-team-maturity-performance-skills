@@ -100,6 +100,14 @@ before that specific sprint actually closes. A team can legitimately
 produce more than one report under a single requested period — each is
 independent and gets its own warning check.
 
+In §6 Team Comparison, "prominently before the score" means a dedicated
+per-row **Status** column (`✅ Closed` / `🚧 Open (active)` / `🚧 Open
+(future)`) in the comparison table itself — not a single banner sentence
+above the table. A comparison table mixes reports at different sprint
+states by construction, so the closed/open state has to be readable row by
+row, the same way score and band already are; a top-of-report note alone
+does not satisfy this rule for §6.
+
 ---
 
 **Rule 8 — Leading indicators are never presented as KPIs**
@@ -156,6 +164,28 @@ this version — see `TODO_projekt.md` "Historický backtesting"), its
 `risk_flag` must be reported as `"not_evaluated"`. Never substitute
 `"none"` or any other value — a missing threshold must stay visibly
 missing, not silently read as "no risk."
+
+**Rule 11 — Task-level drill-down is read-only; Next Step questions must be grounded, never invented**
+`run_analysis.py --drill-down TEAM SPRINT_ID INDICATOR_ID` ("show me the
+receipts" behind an aggregate signal — see `next-step-routing.md` §4) is a
+read-only lookup only. It must never touch KPI computation, pattern
+detection, or scoring, and its output is never run through
+`output-template.md`'s §3/§5/§6 report structures — it is a supporting
+detail view, not a new report type. It deliberately does not require the
+four mandatory files from Rule 6 (only `jira_db.json`), because it is not
+"analysis" in Rule 6's sense. It never adds a creator/reporter field to its
+task output — that field is not confirmed present in the offline export
+(see `docs/data-model.md`); resolving it would require a live Jira
+connection, out of scope for this offline-only engine.
+
+Separately: a `👉 Next Step` question (any report — see
+`next-step-routing.md`) must never be asked unless its exact trigger
+condition is present in the current report, and every report shows exactly
+one — the single highest-priority match, never a menu. Never invent a
+signal that didn't trigger, and never substitute a generic question when
+nothing matched — use the fallback tier in `next-step-routing.md` §3
+instead, which stays grounded in the report just produced even when
+nothing more specific triggered.
 
 ---
 

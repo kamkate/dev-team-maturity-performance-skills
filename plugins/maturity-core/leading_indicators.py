@@ -40,7 +40,25 @@ from pathlib import Path
 import yaml
 
 CORE_DIR = Path(__file__).resolve().parent
-DEFAULT_RULES_PATH = CORE_DIR.parents[0] / "maturity-engine" / "references" / "leading-indicator-rules.md"
+
+
+def _resolve_default_rules_path():
+    """The engine-level indicator spec lives in a sibling skill directory,
+    named "maturity-engine" in the live ~/.claude/skills checkout but
+    "engine" inside a packaged team-maturity-agent.skill bundle (see
+    dist/team-maturity-agent.skill's SKILL.md "Package layout"). Try both
+    so this module works unmodified in either layout; fall back to the
+    historical default if neither exists, so a missing file still raises a
+    clear, named FileNotFoundError instead of resolving to None.
+    """
+    for sibling in ("maturity-engine", "engine"):
+        candidate = CORE_DIR.parents[0] / sibling / "references" / "leading-indicator-rules.md"
+        if candidate.exists():
+            return candidate
+    return CORE_DIR.parents[0] / "maturity-engine" / "references" / "leading-indicator-rules.md"
+
+
+DEFAULT_RULES_PATH = _resolve_default_rules_path()
 
 RISK_FLAGS = {"none", "watch", "concern", "not_evaluated"}
 

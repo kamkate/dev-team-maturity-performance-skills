@@ -317,16 +317,31 @@ def sprint_closed_for_team(team_sprint_rows):
 
 
 def build_report(team, sprint_label, sprint_id, kpis, patterns, recommendations, tasks, sprint_rows, org_name, defaults):
-    levels = [kpis[key]["level"] for key in ["roadmap_contribution", "sprint_completion", "cycle_time_p50", "parallel_epics", "epic_dev_time"]]
-    score = round(sum(level or 0 for level in levels) / 5 * 100)
-    band = band_for_score(score, defaults["scoring"]["bands"])
     closed = sprint_closed_for_team(sprint_rows)
+    if closed:
+        levels = [kpis[key]["level"] for key in ["roadmap_contribution", "sprint_completion", "cycle_time_p50", "parallel_epics", "epic_dev_time"]]
+        score = round(sum(level or 0 for level in levels) / 5 * 100)
+        band = band_for_score(score, defaults["scoring"]["bands"])
+        compute_mode = "verified"
+    else:
+        # Matches build_report_v2's policy (see its docstring below): a
+        # not-yet-closed sprint never gets a score, band, or
+        # pattern-triggered catalog recommendation -- those read as
+        # findings, and a finding computed from a sprint that could still
+        # change is worse than withholding it. Use leading_indicators
+        # (--window mode) for early signal on an open sprint instead.
+        score = None
+        band = None
+        kpis = None
+        patterns = []
+        recommendations = []
+        compute_mode = "not_available"
     report = {
         "team": team,
         "sprint": sprint_label,
         "sprint_id": sprint_id,
         "org_name": org_name,
-        "compute_mode": "verified",
+        "compute_mode": compute_mode,
         "sprint_closed_for_team": closed,
         "score": score,
         "band": band,
@@ -362,10 +377,14 @@ def build_report_v2(team, sprint_label, sprint_id, sprint_state, kpis, patterns,
     always-sibling top-level keys, never merged into one number or field.
 
     Used only by build_sprint_window_reports (the new --window mode).
-    build_report above is unchanged and remains what main()'s default,
-    closed-sprint-only path produces -- this preserves backward
-    compatibility for existing readers of analysis_output.json (in
-    particular maturity-learning-loop) without requiring them to change.
+    build_report above still produces its own flat, un-nested shape (no
+    reader of analysis_output.json needs to change), but as of the fix
+    below both functions now share the same not-closed policy: neither
+    ever computes a score/band/kpis/patterns/recommendations from an
+    incomplete sprint. Previously they disagreed -- build_report computed
+    a provisional score anyway (with only a warning attached), which this
+    docstring incorrectly described as already matching this function's
+    behavior. See build_report's own comment for why "never" won.
     """
     closed = sprint_state == "closed"
     if closed:
@@ -382,8 +401,6 @@ def build_report_v2(team, sprint_label, sprint_id, sprint_state, kpis, patterns,
             "recommendations": recommendations,
         }
     else:
-        # The engine must not compute KPIs from an incomplete sprint (today's
-        # actual behavior for main(); this mode just names it explicitly).
         kpi_evaluation = {
             "compute_mode": "not_available",
             "available": False,
@@ -499,6 +516,82 @@ def build_sprint_window_reports(sprint_rows, task_by_id, epic_by_id, kpi_specs, 
     return reports
 
 
+def rows_for_team_sprint(team, sprint_id, sprint_rows, task_by_id):
+    """The same (team, Sprint ID) join used throughout this module (main(),
+    build_sprint_window_reports()) -- factored out so drill_down() below
+    reuses it instead of re-deriving the filter independently. Scoped to one
+    real Sprint ID, never a Sprint Index Name label (see CLAUDE.md's
+    A_Sprints field docs).
+    """
+    team_rows = [
+        row for row in sprint_rows
+        if row.get("Sprint ID") == sprint_id
+        and task_by_id.get(row["ID"])
+        and task_by_id[row["ID"]].get("Team") == team
+    ]
+    tasks = [task_by_id[row["ID"]] for row in team_rows]
+    return team_rows, tasks
+
+
+# Task-based drill-down filters. Each mirrors the corresponding indicator's
+# `formula` in engine/references/leading-indicator-rules.md exactly --
+# reusing leading_indicators._parse_date / ._sprint_field rather than
+# re-implementing date parsing here, so the drill-down can never silently
+# diverge from what the indicator itself actually computed.
+DRILL_DOWN_TASK_FILTERS = {
+    "BUG_INJECTION_RATE": lambda task, sprint_start: (
+        task.get("Type") == "Bug"
+        and (created := leading_indicators._parse_date(task.get("CreatedDate"))) is not None
+        and created > sprint_start
+    ),
+    "MID_SPRINT_TASK_INJECTION": lambda task, sprint_start: (
+        (created := leading_indicators._parse_date(task.get("CreatedDate"))) is not None
+        and created > sprint_start
+    ),
+}
+
+
+def drill_down(team, sprint_id, indicator_id, sprint_rows, task_by_id, epic_by_id):
+    """Read-only "show me the receipts" lookup behind an aggregate leading
+    indicator or pattern for one team + Sprint ID. Never touches KPI
+    computation, pattern detection, or scoring -- see guardrails.md Rule 11.
+
+    For LOW_ROADMAP_CONTRIBUTION, returns epics (not tasks) in the working
+    set that have no Initiative key, with their task counts -- this answers
+    "which epics lack a link" rather than listing tasks.
+    """
+    team_rows, tasks = rows_for_team_sprint(team, sprint_id, sprint_rows, task_by_id)
+    if not team_rows:
+        raise ValueError(f"No rows found for team {team!r}, Sprint ID {sprint_id!r}.")
+
+    if indicator_id == "LOW_ROADMAP_CONTRIBUTION":
+        epic_task_counts = Counter(t.get("Parent key") for t in tasks if t.get("Parent key"))
+        unlinked = [
+            {"epic_id": epic_id, "task_count": count}
+            for epic_id, count in sorted(epic_task_counts.items())
+            if not (epic_by_id.get(epic_id) or {}).get("Initiative key")
+        ]
+        return {"team": team, "sprint_id": sprint_id, "indicator_id": indicator_id, "epics": unlinked}
+
+    task_filter = DRILL_DOWN_TASK_FILTERS.get(indicator_id)
+    if task_filter is None:
+        raise ValueError(
+            f"Unsupported drill-down indicator {indicator_id!r}. Supported: "
+            f"{sorted(DRILL_DOWN_TASK_FILTERS) + ['LOW_ROADMAP_CONTRIBUTION']}."
+        )
+
+    sprint_start = leading_indicators._parse_date(leading_indicators._sprint_field(team_rows, "Sprint Start Date"))
+    matched = []
+    if sprint_start is not None:
+        matched = [
+            {"id": t.get("ID"), "type": t.get("Type"), "created_date": t.get("CreatedDate")}
+            for t in tasks
+            if task_filter(t, sprint_start)
+        ]
+    matched.sort(key=lambda t: t["created_date"] or "")
+    return {"team": team, "sprint_id": sprint_id, "indicator_id": indicator_id, "tasks": matched}
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", default=None)
@@ -512,6 +605,17 @@ def main():
             "instead."
         ),
     )
+    parser.add_argument(
+        "--drill-down", nargs=3, dest="drill_down", default=None,
+        metavar=("TEAM", "SPRINT_ID", "INDICATOR_ID"),
+        help=(
+            "Read-only lookup: return the individual tasks (or, for "
+            "LOW_ROADMAP_CONTRIBUTION, epics) behind an aggregate signal for one "
+            "team + Sprint ID. Never touches KPI computation, pattern detection, "
+            "or scoring -- see engine/references/guardrails.md Rule 11. Only "
+            "requires jira_db.json, not the other three mandatory-file-check inputs."
+        ),
+    )
     args = parser.parse_args()
     workspace_root = resolve_workspace_root(Path(args.root or Path.cwd()))
 
@@ -520,6 +624,26 @@ def main():
         print("Missing manifest.json", file=sys.stderr)
         return 1
     manifest = load_json(manifest_path)
+
+    if args.drill_down:
+        team, sprint_id, indicator_id = args.drill_down
+        jira_db_path = workspace_root / manifest.get("jira_db_path", "DATA/jira_db.json")
+        if not jira_db_path.exists():
+            print(f"Missing required input: {jira_db_path}", file=sys.stderr)
+            return 1
+        data = load_json(jira_db_path)
+        task_rows = normalize_table(data.get("A_Task", []))
+        epic_rows = normalize_table(data.get("A_Epic", []))
+        sprint_rows = normalize_table(data.get("A_Sprints", []))
+        task_by_id = {row.get("ID"): row for row in task_rows if isinstance(row, dict) and row.get("ID") is not None}
+        epic_by_id = {row.get("ID"): row for row in epic_rows if isinstance(row, dict) and row.get("ID") is not None}
+        try:
+            result = drill_down(team, sprint_id, indicator_id, sprint_rows, task_by_id, epic_by_id)
+        except ValueError as exc:
+            print(str(exc), file=sys.stderr)
+            return 1
+        print(json.dumps(result, indent=2))
+        return 0
 
     jira_db_path = workspace_root / manifest.get("jira_db_path", "DATA/jira_db.json")
     catalog_path = workspace_root / manifest.get("catalog_path", "catalog.yaml")

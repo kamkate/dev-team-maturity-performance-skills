@@ -70,6 +70,7 @@ structures into one response, and never invent a fourth.
 | One team, one sprint | §3 Full Sprint Analysis |
 | One team, several sprints (a window over time) | §5 Trend Analysis |
 | Several teams, one sprint | §6 Team Comparison |
+| Quick multi-team status scan | Morning Brief (see [references/morning-brief-template.md](morning-brief-template.md)) |
 
 *If the user's question spans two contexts — e.g. "how did this team do, and
 how does it compare to the others" — run both and stack the two complete
@@ -176,16 +177,22 @@ version has a shorter list here, not no section):*
 
 ### 👉 Next Step
 
-*Two parts, blank line between them inside the same blockquote: the specific
-fact that prompted the question, then the question itself — never the
-question alone with no grounding, and never the grounding without a
-concrete question at the end.*
+*Exactly one question — the single most important follow-up for this
+moment, not a menu. Blank line between the grounding and the question,
+inside the same blockquote. Never a question with no grounding, never
+grounding with no question, never more than one question. Selection is
+not ad hoc: pick the single highest-priority match from
+[references/next-step-routing.md](next-step-routing.md)'s routing table
+(priority order: compound pattern > atomic pattern > leading-indicator
+`concern` > `watch` > trend direction). If nothing in the table matches
+this report, use that file's fallback tier — never invent an ungrounded
+question.*
 
-> [one line: the specific number or pattern above that this question follows from]
+> [grounding line: the specific number/pattern this question follows from]
 >
-> **[the question itself]?**
+> **[the question]?**
 
-Examples of the question line — always this concrete, never generic:
+Examples of grounded question lines — always this concrete, never generic:
 - "Cycle time is 🟢 GREEN but Parallel Epics is 🔴 RED, and the compound pattern says WIP is the driver — want the trend over the last 3 sprints to check if it's climbing?"
 - "Roadmap Contribution is 🔴 RED at 28.6%, which can also mean missing Jira linkage rather than real drift — want to check which epics are linked to initiatives before treating this as a fact?"
 - "This is one of 4 teams reporting this sprint — want the Team Comparison view to see where it ranks?"
@@ -410,6 +417,21 @@ either. Never conflate the two:
 - If `kpi_evaluation.available` is `false` (sprint not closed), say so before
   showing leading indicators — don't let their presence imply a KPI score exists.
 
+### 👉 Next Step
+
+*Only needed when §4 is presented standalone — Mode 5 ("last open sprint"),
+where there is no closed-sprint §3/§5/§6 report for this team to attach a
+Next Step to. When §4 is layered on top of a §3/§5/§6 report instead, that
+report's own Next Step already covers it — don't add a second one. Same
+rule as everywhere else: exactly one question — the single highest-priority
+match from [references/next-step-routing.md](next-step-routing.md)'s
+"§4 Leading Indicators (Mode 5)" rows, falling back to that file's fallback
+tier if nothing matches:*
+
+> [grounding line: the specific flagged indicator this question follows from]
+>
+> **[the question]?**
+
 ---
 
 ## 5. Trend Analysis
@@ -450,11 +472,13 @@ human voice, hedged (never "caused"; "is associated with", "coincides with"):*
 
 ### 👉 Next Step
 
-*Grounding line, then the question — blank line between them:*
+*Exactly one question, same rule as §3 — pick the single highest-priority
+match from [references/next-step-routing.md](next-step-routing.md),
+falling back to that file's fallback tier if nothing matches:*
 
-> [one line: the specific sprint-over-sprint movement above that this question follows from]
+> [grounding line: the specific sprint-over-sprint movement above that this question follows from]
 >
-> **[the follow-up question, specific to that movement]?**
+> **[the question, specific to that movement]?**
 
 ---
 
@@ -474,13 +498,24 @@ five separate "RED KPIs" lists. (§4's leading indicators don't get this
 treatment by default — most read no signal at all, so a full matrix would
 be mostly empty; see §4 for why that section shows only what's flagged.)*
 
-| Rank | Team | Score | Band | Roadmap | Completion | Cycle Time | WIP | Epic Time | Top Pattern |
-|------|------|-------|------|---------|------------|------------|-----|-----------|-------------|
-| 1 | `[TEAM]` | `[N]/100` | 🔴/🟡/🟢 [band] | 🔴/🟡/🟢 | 🔴/🟡/🟢 | 🔴/🟡/🟢 | 🔴/🟡/🟢 | 🔴/🟡/🟢 | `[pattern]`, or "—" |
-| 2 | ... | | | | | | | | |
+| Rank | Team | Sprint ID | Status | Score | Band | Roadmap | Completion | Cycle Time | WIP | Epic Time | Top Pattern |
+|------|------|-----------|--------|-------|------|---------|------------|------------|-----|-----------|-------------|
+| 1 | `[TEAM]` | `[SPRINT ID]` | ✅ Closed / 🚧 Open (active) / 🚧 Open (future) | `[N]/100` | 🔴/🟡/🟢 [band] | 🔴/🟡/🟢 | 🔴/🟡/🟢 | 🔴/🟡/🟢 | 🔴/🟡/🟢 | 🔴/🟡/🟢 | `[pattern]`, or "—" |
+| 2 | ... | | | | | | | | | | |
 
 *"Top Pattern" is the highest-urgency triggered pattern for that team (a
 compound pattern outranks an atomic one); "—" if none triggered.*
+
+*The **Status** column is mandatory on every row, always — never fold it
+into a footnote or a single top-of-report banner. Derive it per report from
+`sprint_closed_for_team` and `sprint_state_warning`: `✅ Closed` when
+`sprint_closed_for_team: true`; otherwise `🚧 Open (active)` or
+`🚧 Open (future)`, read from the state named in `sprint_state_warning`. A
+comparison table mixes reports at different sprint states by construction
+(see Soft Rule E in guardrails.md), so a single badge or intro sentence is
+not enough — the CTO must be able to read, row by row, which scores are
+final and which are still-moving snapshots without cross-referencing prose
+above the table.
 
 🚨 **Immediate attention** (score < 40): [teams, or "none"]
 👀 **Monitor** (score 40–59): [teams, or "none"]
@@ -488,9 +523,13 @@ compound pattern outranks an atomic one); "—" if none triggered.*
 
 ### 👉 Next Step
 
-> [one line: which team(s) stand out from the table above and why — lowest score, a shared pattern across several teams, or a surprising outlier]
+*Exactly one question, same rule as §3 — pick the single highest-priority
+match from [references/next-step-routing.md](next-step-routing.md),
+falling back to that file's fallback tier if nothing matches:*
+
+> [grounding line: which team stands out from the table above and why — lowest score, or a shared pattern across several teams]
 >
-> **Which team would you like to analyse in detail?**
+> **[the question]?**
 
 ---
 
@@ -511,10 +550,14 @@ compound pattern outranks an atomic one); "—" if none triggered.*
 - Interpretation (§5) is three labeled one-sentence lines (**What moved:** /
   **Why it matters:** / **Watch:**), never one 2-3 sentence paragraph — same
   reasoning as the intervention blocks: labeled short fields beat a dense block.
-- Every Next Step (§3, §5, §6) is two parts inside its blockquote, blank line
-  between them: a grounding line naming the specific number or pattern it
-  follows from, then the bolded question. Never the question alone with no
-  grounding — the CTO should never have to ask "why are you asking me this?"
+- Every Next Step (§3, §5, §6, standalone §4, Morning Brief) shows exactly
+  one question — the single most important follow-up for this moment, not
+  a menu — as a grounding line + bolded question pair inside the
+  blockquote, blank line between them. Never a question alone with no
+  grounding — the CTO should never have to ask "why are you asking me
+  this?" — and never an invented question with no real trigger. See
+  [references/next-step-routing.md](next-step-routing.md) for which
+  question is allowed when.
 - Markdown tables for all KPI and score data — never bullet points for numbers
 - Emoji carry status, urgency, type, and direction (§1's fixed vocabulary) — never improvise a new emoji meaning mid-report
 - Code spans (`` ` `` `` ` ``) for every computed value: scores, IDs, pattern names, KPI values — never for prose
