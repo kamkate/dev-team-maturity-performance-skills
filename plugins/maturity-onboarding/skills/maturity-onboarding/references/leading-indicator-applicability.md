@@ -1,10 +1,10 @@
 # Leading Indicator Applicability Guide
-reference_for: maturity-onboarding Step 3b (runs immediately after Step 3 — threshold-guide.md)
+reference_for: maturity-onboarding Step 4b (runs immediately after Step 4 — threshold-guide.md)
 version: leading-indicator-applicability-v1
 
 This file defines the dialogue for confirming, per leading indicator,
 whether it applies to this organization's workflow at all — distinct from
-threshold-guide.md's Step 3, which calibrates *values* for KPI thresholds.
+threshold-guide.md's Step 4, which calibrates *values* for KPI thresholds.
 Same pattern as that step: show the indicator, ask if it applies, capture
 a reason when it doesn't. Choice + reason are recorded into `org-config.md`
 and are frozen and auditable from that point on, exactly like a KPI
@@ -17,11 +17,18 @@ they are the only ones with entries in `leading_indicator_thresholds`. The
 KPI's own thresholds and use fields (`Parent key`) that every org's Jira
 export already has by definition — there is nothing to ask about.
 
+**Ground each question in the Step 1 example**
+([data-source-gate.md](data-source-gate.md)): where the example task has a
+relevant field populated (or empty), point at it. E.g. for
+`MISSING_SP_RATIO`, if the example task has no story points set, say so
+before asking whether that's typical — a concrete "your example task [KEY]
+has no story points" lands better than an abstract yes/no.
+
 ---
 
 ## How this differs from a threshold override
 
-- **Threshold calibration** (Step 3): "this indicator applies here — what
+- **Threshold calibration** (Step 4): "this indicator applies here — what
   value counts as concerning?"
 - **Applicability** (this step): "does this indicator apply here at all?"
 

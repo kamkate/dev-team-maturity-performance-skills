@@ -25,6 +25,73 @@
         "additionalProperties": {"type": "number"}
       }
     },
+    "data_source": {
+      "type": "object",
+      "description": "Recorded during maturity-onboarding's data-source gate (Step 1 — see onboarding/references/data-source-gate.md). Which data source this org's engine runs are configured against. Informational/audit only: run_analysis.py always reads jira_db.json or the CSVs regardless of this value — it does not select an ingest path.",
+      "required": ["type"],
+      "properties": {
+        "type": {"type": "string", "enum": ["static_export", "live_jira"]},
+        "confirmed_at": {"type": "string"},
+        "confirmed_by": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "field_mapping": {
+      "type": "object",
+      "description": "Present only when data_source.type is live_jira. Instance-specific Jira custom field IDs resolved to logical names during the single-task validation walkthrough (onboarding/references/data-source-gate.md), plus project_type and has_initiative_hierarchy. Forward-declared, like team_overrides: not yet read by run_analysis.py, which still only consumes jira_db.json/CSV.",
+      "required": ["project_type", "has_initiative_hierarchy", "validated_against_task", "fields"],
+      "properties": {
+        "jira_instance": {"type": "string"},
+        "project_type": {"type": "string", "enum": ["team_managed", "company_managed"]},
+        "has_initiative_hierarchy": {"type": "boolean"},
+        "validated_against_task": {"type": "string"},
+        "validated_at": {"type": "string"},
+        "fields": {
+          "type": "object",
+          "required": ["story_points", "sprint", "epic_link", "initiative_link"],
+          "properties": {
+            "story_points": {
+              "type": "object",
+              "properties": {
+                "field_id": {"type": ["string", "null"]},
+                "present": {"type": "boolean"}
+              },
+              "additionalProperties": false
+            },
+            "sprint": {
+              "type": "object",
+              "properties": {
+                "field_id": {"type": ["string", "null"]},
+                "present": {"type": "boolean"}
+              },
+              "additionalProperties": false
+            },
+            "epic_link": {
+              "type": "object",
+              "description": "mode distinguishes team-managed projects' native `parent` field from company-managed projects' `Epic Link` custom field — see data-source-gate.md step 5.",
+              "required": ["mode"],
+              "properties": {
+                "mode": {"type": "string", "enum": ["parent_field", "epic_link_field"]},
+                "field_id": {"type": ["string", "null"]},
+                "present": {"type": "boolean"}
+              },
+              "additionalProperties": false
+            },
+            "initiative_link": {
+              "type": "object",
+              "properties": {
+                "field_id": {"type": ["string", "null"]},
+                "present": {"type": "boolean"}
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "notes": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
     "leading_indicator_thresholds": {
       "type": "object",
       "description": "Per-indicator watch/concern thresholds (Sec.3.5.6) plus per-org applicability, keyed by indicator id in lowercase (e.g. 'missing_sp_ratio'). See maturity-engine/references/leading-indicator-rules.md and leading_indicators.py::evaluate_probabilistic_indicator / filter_applicable_indicators.",

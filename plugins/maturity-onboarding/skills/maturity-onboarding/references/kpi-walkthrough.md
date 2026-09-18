@@ -1,9 +1,19 @@
 # KPI Walkthrough Guide
-reference_for: maturity-onboarding Step 2
+reference_for: maturity-onboarding Step 3
 version: kpi-walkthrough-v1
 
 This file defines the dialogue for each of the 5 KPIs during onboarding.
 For each KPI: show default, ask if it fits, capture custom definition if not.
+
+**Ground every question in the concrete example surfaced in Step 1**
+([data-source-gate.md](data-source-gate.md)) — the specific task, its
+parent epic, initiative (if any), and sprint. Instead of asking "does a
+task count as roadmap-linked if its epic has a non-null Initiative key?"
+in the abstract, ask it against the actual example: "your example task
+[KEY]'s epic [is / isn't] linked to an initiative — under the default
+rule, that would make it [roadmap-linked / not roadmap-linked]. Does that
+match how you'd classify it?" Same pattern for every KPI below where the
+example has a relevant field populated (or notably empty).
 
 ---
 

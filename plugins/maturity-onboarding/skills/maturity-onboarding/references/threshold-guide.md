@@ -1,5 +1,5 @@
 # Threshold Calibration Guide
-reference_for: maturity-onboarding Step 3
+reference_for: maturity-onboarding Step 4
 version: threshold-guide-v1
 
 This file guides the threshold calibration dialogue for each KPI.

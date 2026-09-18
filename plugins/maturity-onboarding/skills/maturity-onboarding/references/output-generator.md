@@ -1,5 +1,5 @@
 # Output Generator
-reference_for: maturity-onboarding Step 8
+reference_for: maturity-onboarding Step 5
 version: output-generator-v1
 
 This file defines the exact format for each of the three output files.
@@ -30,6 +30,45 @@ sprint_length_weeks: [N]
 jira_workflow: [standard / custom]
 org_context_notes: |
   [free text captured in Step 1]
+
+---
+
+## Data source & field mapping
+
+# See references/data-source-gate.md for the dialogue that produces this
+# block. `field_mapping` is present only for data_source.type: live_jira —
+# omit the whole `field_mapping` key for a static_export org rather than
+# writing it out empty.
+
+data_source:
+  type: [static_export / live_jira]
+  confirmed_at: [YYYY-MM-DD]
+  confirmed_by: [who ran onboarding]
+
+field_mapping:
+  jira_instance: [site URL]
+  project_type: [team_managed / company_managed]
+  has_initiative_hierarchy: [true / false]
+  validated_against_task: [issue key]
+  validated_at: [YYYY-MM-DD]
+  fields:
+    story_points:
+      field_id: [customfield_XXXXX or null]
+      present: [true / false]
+    sprint:
+      field_id: [customfield_XXXXX or null]
+      present: [true / false]
+    epic_link:
+      mode: [parent_field / epic_link_field]
+      field_id: [customfield_XXXXX or null — set only when mode is epic_link_field]
+      present: [true / false]
+    initiative_link:
+      field_id: [customfield_XXXXX or null]
+      present: [true / false]
+  notes: |
+    [free text — e.g. "validated task was a solo task (no parent epic);
+    epic_link/initiative_link derived from field metadata, not a populated
+    example — recommend validating a second, epic-linked task"]
 
 ---
 
@@ -234,6 +273,25 @@ Files produced:
 
 ---
 
+## Data source & field mapping
+
+Data source: [static_export / live_jira], confirmed [YYYY-MM-DD]
+
+[For live_jira only:]
+- Validated against task: [issue key] ([solo task — no parent epic / epic-linked])
+- project_type: [team_managed / company_managed]
+- has_initiative_hierarchy: [true / false]
+- Fields resolved: story_points [present/absent], sprint [present/absent],
+  epic_link ([mode]) [present/absent], initiative_link [present/absent]
+- [If the validated task was a solo task:] ⚠️ epic_link/initiative_link
+  derived from field metadata, not a populated example — recommend
+  validating a second, epic-linked task before relying on epic_dev_time or
+  parallel_epics for this project.
+- Pull scope requested (not executed by onboarding): [projects/boards, time window]
+[Or, for static_export: "N/A — static export, no field mapping to derive."]
+
+---
+
 ## KPI customizations
 
 [For each KPI, one of:]
@@ -252,7 +310,7 @@ Files produced:
 
 ## Leading indicator applicability
 
-[For each of the 9 probabilistic leading indicators excluded during Step 3b:]
+[For each of the 9 probabilistic leading indicators excluded during Step 4b:]
 - [INDICATOR_ID]: excluded — [applicability_reason verbatim]
 [Or: "None — all 9 probabilistic leading indicators apply"]
 
